@@ -1,177 +1,52 @@
-package com.example.otp.controller;
+Design document for single sign on project using java, spring boot , JSP 
+ChatGPT
+Sure, here's a high-level design document for a Single Sign-On (SSO) project using Java, Spring Boot, and JSP:
 
-import com.example.otp.service.OTPService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+Design Document for Single Sign-On (SSO) Project
+1. Introduction
+This document outlines the design of a Single Sign-On (SSO) system using Java, Spring Boot, and JSP. The SSO system allows users to log in once and gain access to multiple applications without re-entering credentials.
 
-import javax.servlet.http.HttpSession;
+2. Objectives
+Implement SSO for seamless authentication across multiple applications.
+Use Spring Boot for backend services.
+Use JSP for the front-end views.
+Ensure secure handling of user credentials and tokens.
+3. Architecture Overview
+The architecture comprises the following components:
 
-@Controller
-public class OTPController {
-
-    @Autowired
-    private OTPService otpService;
-
-    @GetMapping("/")
-    public String showForm() {
-        return "userDetails";
-    }
-
-    @PostMapping("/sendOTP")
-    public String sendOTP(@RequestParam String mobileNumber, @RequestParam String email, HttpSession session, Model model) {
-        String mobileOTP = otpService.generateOTP();
-        String emailOTP = otpService.generateOTP();
-
-        // Save OTPs in session (or database)
-        session.setAttribute("mobileOTP", mobileOTP);
-        session.setAttribute("emailOTP", emailOTP);
-
-        // Send OTP to mobile (implement sendSMS method in OTPService)
-        // otpService.sendSMS(mobileNumber, mobileOTP);
-
-        // Send OTP to email
-        otpService.sendEmail(email, emailOTP);
-
-        model.addAttribute("message", "OTP sent to mobile and email");
-        return "userDetails";
-    }
-
-    @PostMapping("/verifyOTP")
-    public String verifyOTP(@RequestParam String mobileOTP, @RequestParam String emailOTP, HttpSession session, Model model) {
-        String sessionMobileOTP = (String) session.getAttribute("mobileOTP");
-        String sessionEmailOTP = (String) session.getAttribute("emailOTP");
-
-        if (mobileOTP.equals(sessionMobileOTP) && emailOTP.equals(sessionEmailOTP)) {
-            model.addAttribute("message", "OTP verified successfully");
-            return "success";
-        } else {
-            model.addAttribute("message", "Invalid OTP");
-            return "userDetails";
-        }
-    }
-}
-xyz
-
-
-package com.example.otp.service;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
-
-import java.util.Random;
-
-@Service
-public class OTPService {
-
-    @Autowired
-    private JavaMailSender mailSender;
-
-    private final Random random = new Random();
-    
-    public String generateOTP() {
-        return String.format("%06d", random.nextInt(1000000));
-    }
-
-    public void sendEmail(String to, String otp) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Your OTP Code");
-        message.setText("Your OTP code is: " + otp);
-        mailSender.send(message);
-    }
-
-    // Implement sendSMS() method to send SMS using your preferred SMS gateway
-}
-
-xyz
-package com.example.otp.service;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
-
-import java.util.Random;
-
-@Service
-public class OTPService {
-
-    @Autowired
-    private JavaMailSender mailSender;
-
-    private final Random random = new Random();
-    
-    public String generateOTP() {
-        return String.format("%06d", random.nextInt(1000000));
-    }
-
-    public void sendEmail(String to, String otp) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Your OTP Code");
-        message.setText("Your OTP code is: " + otp);
-        mailSender.send(message);
-    }
-
-    // Implement sendSMS() method to send SMS using your preferred SMS gateway
-}
-
-xyz
-package com.example.otp.controller;
-
-import com.example.otp.service.OTPService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpSession;
-
-@Controller
-public class OTPController {
-
-    @Autowired
-    private OTPService otpService;
-
-    @GetMapping("/")
-    public String showForm() {
-        return "userDetails";
-    }
-
-    @PostMapping("/sendOTP")
-    public String sendOTP(@RequestParam String mobileNumber, @RequestParam String email, HttpSession session, Model model) {
-        String mobileOTP = otpService.generateOTP();
-        String emailOTP = otpService.generateOTP();
-
-        // Save OTPs in session (or database)
-        session.setAttribute("mobileOTP", mobileOTP);
-        session.setAttribute("emailOTP", emailOTP);
-
-        // Send OTP to mobile (implement sendSMS method in OTPService)
-        // otpService.sendSMS(mobileNumber, mobileOTP);
-
-        // Send OTP to email
-        otpService.sendEmail(email, emailOTP);
-
-        model.addAttribute("message", "OTP sent to mobile and email");
-        return "userDetails";
-    }
-
-    @PostMapping("/verifyOTP")
-    public String verifyOTP(@RequestParam String mobileOTP, @RequestParam String emailOTP, HttpSession session, Model model) {
-        String sessionMobileOTP = (String) session.getAttribute("mobileOTP");
-        String sessionEmailOTP = (String) session.getAttribute("emailOTP");
-
-        if (mobileOTP.equals(sessionMobileOTP) && emailOTP.equals(sessionEmailOTP)) {
-            model.addAttribute("message", "OTP verified successfully");
-            return "success";
-        } else {
-            model.addAttribute("message", "Invalid OTP");
-            return "userDetails";
-        }
-    }
-}
+Authentication Server: Manages user authentication and issues tokens.
+Client Applications: Trust the authentication server and use the tokens for user authentication.
+Token Storage: Secure storage for tokens.
+4. Technology Stack
+Java 17
+Spring Boot 3.x
+Spring Security
+JWT (JSON Web Tokens)
+JSP (JavaServer Pages)
+MySQL/PostgreSQL (or any other relational database)
+Redis (for token storage, if needed)
+Maven/Gradle (for project management)
+5. Authentication Flow
+User Request: User accesses a protected resource on a client application.
+Redirection: User is redirected to the authentication server if not already authenticated.
+Login: User enters credentials on the authentication server.
+Token Issuance: Upon successful authentication, the server issues a JWT.
+Token Storage: Token is stored securely on the client side (typically in a cookie or local storage).
+Resource Access: User is redirected back to the client application with the token, and access is granted to the protected resource.
+6. Detailed Design
+6.1 Authentication Server
+Controller: Manages login requests and token issuance.
+Service: Handles business logic for authentication and token management.
+Repository: Interacts with the database for user details.
+Security Configuration: Configures Spring Security for authentication
+and authorization.
+6.2 Client Applications
+Controller: Handles requests for protected resources.
+Service: Interacts with the authentication server for token validation.
+Interceptor: Intercepts requests to check for valid tokens before allowing access
+6.3 Token Management
+JWT Utility: Generates and validates JWT tokens.
+Redis Configuration: Optional, for storing tokens in Redis.
+7. User Interface
+Login Page: JSP page for user login.
+Error Page: JSP page for error handling.
