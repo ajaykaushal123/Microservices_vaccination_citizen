@@ -1,22 +1,90 @@
-Design Document
-1. Project Overview
-
-Project Name: User Details Application
-Description: This application will collect user details and perform validation, including OTP validation. The frontend will be built using JSP.
-2. Requirements
-
-Frontend: JSP for the view
-Backend: Spring Boot
-Dependencies: Spring Web, Spring Boot Starter JSP, Spring Security (if needed)
-3. Architecture
-
-Model-View-Controller (MVC) Architecture
-Model: Represents the data (User details).
-View: JSP files for the frontend.
-Controller: Spring Boot controllers to handle HTTP requests and responses.
-4. Components
-
-User: A model class representing the user details.
-UserController: Controller class to handle requests.
-UserService: Service class to handle business logic and validation.
-JSP Pages: Views for the user interface.
++-----------------------------------+
+|       User Interacts with         |
+|        JSP Frontend Page          |
++-----------------------------------+
+                 |
+                 v
++-----------------------------------+
+| User Submits Form with Details    |
+| (First Name, Last Name, Mobile    |
+|  Number, Email, etc.)             |
++-----------------------------------+
+                 |
+                 v
++-----------------------------------+
+| Spring Boot Controller            |
+| (Handles Requests)                |
+| - OTPController                   |
++-----------------------------------+
+                 |
++----------------|------------------+
+|                v                  |
+| +-----------------------------------+
+| | Generate OTP for Mobile & Email   |
+| | (OTPService)                      |
+| +-----------------------------------+
+|                |
+|                v
+| +-----------------------------------+
+| | Store OTPs in Session             |
+| +-----------------------------------+
+|                |
+| +----------------|------------------+
+| |                v                  |
+| | +-----------------------------------+
+| | | Send OTP to Mobile via SMS        |
+| | | (Using OTPService's sendSMS method|
+| | | - Not implemented in example)     |
+| | +-----------------------------------+
+| |                |
+| |                v
+| +-----------------------------------+
+| | Send OTP to Email (SMTP)           |
+| | (Using OTPService's sendEmail method)|
+| +-----------------------------------+
+|                |
+|                v
+| +-----------------------------------+
+| | Return Response to User            |
+| | - Display "OTP sent to mobile and  |
+| |   email" message                   |
+| +-----------------------------------+
+|                |
+|                v
+| +-----------------------------------+
+| | User Inputs OTPs (Mobile & Email)  |
+| | and Submits Form Again             |
+| +-----------------------------------+
+|                |
+|                v
+| +-----------------------------------+
+| | Spring Boot Controller             |
+| | - OTPController                    |
+| | - Verify OTPs                      |
+| +-----------------------------------+
+|                |
+| +----------------|------------------+
+| |                v                  |
+| | +-----------------------------------+
+| | | Match OTPs with Stored Values     |
+| | | - Session OTPs                    |
+| | +-----------------------------------+
+|                |
+| +----------------|------------------+
+| |                v                  |
+| | +-----------------------------------+
+| | | If OTPs Match:                    |
+| | | - Display "OTP verified successfully" |
+| | +-----------------------------------+
+| |                |
+| |                v
+| +-----------------------------------+
+| | If OTPs Don't Match:                |
+| | - Display "Invalid OTP"             |
+| +-----------------------------------+
+|                |
+|                v
++-----------------------------------+
+|       User Sees Result on         |
+|        JSP Frontend Page          |
++-----------------------------------+
