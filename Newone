@@ -1,52 +1,107 @@
-Design document for single sign on project using java, spring boot , JSP 
-ChatGPT
-Sure, here's a high-level design document for a Single Sign-On (SSO) project using Java, Spring Boot, and JSP:
-
-Design Document for Single Sign-On (SSO) Project
-1. Introduction
-This document outlines the design of a Single Sign-On (SSO) system using Java, Spring Boot, and JSP. The SSO system allows users to log in once and gain access to multiple applications without re-entering credentials.
-
-2. Objectives
-Implement SSO for seamless authentication across multiple applications.
-Use Spring Boot for backend services.
-Use JSP for the front-end views.
-Ensure secure handling of user credentials and tokens.
-3. Architecture Overview
-The architecture comprises the following components:
-
-Authentication Server: Manages user authentication and issues tokens.
-Client Applications: Trust the authentication server and use the tokens for user authentication.
-Token Storage: Secure storage for tokens.
-4. Technology Stack
-Java 17
-Spring Boot 3.x
-Spring Security
-JWT (JSON Web Tokens)
-JSP (JavaServer Pages)
-MySQL/PostgreSQL (or any other relational database)
-Redis (for token storage, if needed)
-Maven/Gradle (for project management)
-5. Authentication Flow
-User Request: User accesses a protected resource on a client application.
-Redirection: User is redirected to the authentication server if not already authenticated.
-Login: User enters credentials on the authentication server.
-Token Issuance: Upon successful authentication, the server issues a JWT.
-Token Storage: Token is stored securely on the client side (typically in a cookie or local storage).
-Resource Access: User is redirected back to the client application with the token, and access is granted to the protected resource.
-6. Detailed Design
-6.1 Authentication Server
-Controller: Manages login requests and token issuance.
-Service: Handles business logic for authentication and token management.
-Repository: Interacts with the database for user details.
-Security Configuration: Configures Spring Security for authentication
-and authorization.
-6.2 Client Applications
-Controller: Handles requests for protected resources.
-Service: Interacts with the authentication server for token validation.
-Interceptor: Intercepts requests to check for valid tokens before allowing access
-6.3 Token Management
-JWT Utility: Generates and validates JWT tokens.
-Redis Configuration: Optional, for storing tokens in Redis.
-7. User Interface
-Login Page: JSP page for user login.
-Error Page: JSP page for error handling.
+[30/07, 4:08 pm] Ajit: 8. Security Considerations
+Encryption: Use HTTPS for all communication.
+Token Security: Securely store JWTs and use short expiration times.
+User Data: Securely handle and store user credentials.
+[30/07, 4:09 pm] Ajit: System architecture design
+[30/07, 4:09 pm] Ajit: +----------------------------------+
+|          Authentication Server   |
+| +------------------------------+ |
+| |         Spring Boot          | |
+| |  +------------------------+  | |
+| |  | Authentication Service |  | |
+| |  +------------------------+  | |
+| |  |      Token Service     |  | |
+| |  +------------------------+  | |
+| |  |      User Database     |  | |
+| |  +------------------------+  | |
+| +------------------------------+ |
++----------------------------------+
+               |
+               | Issue Token / Validate Token
+               v
++---------------------------+
+|    Client Applications    |
+| +-----------------------+ |
+| |    Application 1      | |
+| |  +-------------------+ | |
+| |  |   JSP Frontend    |  | |
+| |  +-------------------+  | |
+| |  | Spring Boot       |  | |
+| |  | Backend           |  | |
+| |  +-------------------+  | |
+| +-----------------------+ | 
+|                           |
+| +-----------------------+ |
+| |    Application 2      | |
+| |  +-------------------+ | |
+| |  |   JSP Frontend    |  | |
+| |  +-------------------+  | |
+| |  | Spring Boot       |  | |
+| |  | Backend           |  | |
+| |  +-------------------+  | |
+| +-----------------------+ |
++---------------------------+
+[30/07, 4:10 pm] Ajit: Authentication flow diagram
+[30/07, 4:10 pm] Ajit: User          Client Application          Authentication Server
+ |                   |                            |
+ |--- Access Protected Resource --->              |
+ |                   |                            |
+ |<--- Redirect to Login Page -----               |
+ |                   |                            |
+ |--- Show Login Page (JSP) --->                  |
+ |                   |                            |
+ |<--- Enter Credentials --------                 |
+ |                   |                            |
+ |--- POST /login with credentials --->           |
+ |                   |                            |
+ |                 Validate                      |
+ |                   |                            |
+ |<--- Issue JWT Token ---------                 |
+ |                   |                            |
+ |--- Redirect to Original Resource with Token--> |
+ |                   |                            |
+ |--- Access Protected Resource with Token --->   |
+ |                   |                            |
+ |                 Validate                      |
+ |                   |                            |
+ |<--- Allow Access to Resource ---               |
+[30/07, 4:10 pm] Ajit: Component diagram
+[30/07, 4:10 pm] Ajit: +---------------------+       +----------------------+
+|   Client Application|       |   Authentication Server |
+| +-----------------+ |       | +-------------------+   |
+| |    Controller   |<------>| |    Controller     |   |
+| +-----------------+ |       | +-------------------+   |
+| +-----------------+ |       | +-------------------+   |
+| |    Service      |<------>| |    Service        |   |
+| +-----------------+ |       | +-------------------+   |
+| +-----------------+ |       | +-------------------+   |
+| |    Repository   |       | |    Repository     |   |
+| +-----------------+ |       | +-------------------+   |
+| +-----------------+ |       | +-------------------+   |
+| |    JSP Views    |       | |   JWT Utility     |   |
+| +-----------------+ |       | +-------------------+   |
+| +-----------------+ |       | +-------------------+   |
+| |  Interceptor    |       | |  Security Config  |   |
+| +-----------------+ |       | +-------------------+   |
++---------------------+       +----------------------+
+[30/07, 4:11 pm] Ajit: Sequence diagram for login
+[30/07, 4:11 pm] Ajit: User                Client App               Auth Server
+ |                     |                         |
+ |--- Access Login Page -->                     |
+ |                     |                         |
+ |<--- Show Login Form ---                      |
+ |                     |                         |
+ |--- Submit Login Form -->                     |
+ |                     |                         |
+ |                     |--- Validate Credentials -->|
+ |                     |                         |
+ |                     |<--- Issue JWT Token ---- |
+ |                     |                         |
+ |<--- Redirect with Token ---                   |
+ |                     |                         |
+ |--- Access Resource with Token -->            |
+ |                     |                         |
+ |                     |--- Validate Token -->   |
+ |                     |                         |
+ |                     |<--- Token Valid --------|
+ |<--- Access Granted ---                        |
