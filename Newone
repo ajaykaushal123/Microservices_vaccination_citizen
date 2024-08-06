@@ -1,90 +1,19 @@
-+-----------------------------------+
-|       User Interacts with         |
-|        JSP Frontend Page          |
-+-----------------------------------+
-                 |
-                 v
-+-----------------------------------+
-| User Submits Form with Details    |
-| (First Name, Last Name, Mobile    |
-|  Number, Email, etc.)             |
-+-----------------------------------+
-                 |
-                 v
-+-----------------------------------+
-| Spring Boot Controller            |
-| (Handles Requests)                |
-| - OTPController                   |
-+-----------------------------------+
-                 |
-+----------------|------------------+
-|                v                  |
-| +-----------------------------------+
-| | Generate OTP for Mobile & Email   |
-| | (OTPService)                      |
-| +-----------------------------------+
-|                |
-|                v
-| +-----------------------------------+
-| | Store OTPs in Session             |
-| +-----------------------------------+
-|                |
-| +----------------|------------------+
-| |                v                  |
-| | +-----------------------------------+
-| | | Send OTP to Mobile via SMS        |
-| | | (Using OTPService's sendSMS method|
-| | | - Not implemented in example)     |
-| | +-----------------------------------+
-| |                |
-| |                v
-| +-----------------------------------+
-| | Send OTP to Email (SMTP)           |
-| | (Using OTPService's sendEmail method)|
-| +-----------------------------------+
-|                |
-|                v
-| +-----------------------------------+
-| | Return Response to User            |
-| | - Display "OTP sent to mobile and  |
-| |   email" message                   |
-| +-----------------------------------+
-|                |
-|                v
-| +-----------------------------------+
-| | User Inputs OTPs (Mobile & Email)  |
-| | and Submits Form Again             |
-| +-----------------------------------+
-|                |
-|                v
-| +-----------------------------------+
-| | Spring Boot Controller             |
-| | - OTPController                    |
-| | - Verify OTPs                      |
-| +-----------------------------------+
-|                |
-| +----------------|------------------+
-| |                v                  |
-| | +-----------------------------------+
-| | | Match OTPs with Stored Values     |
-| | | - Session OTPs                    |
-| | +-----------------------------------+
-|                |
-| +----------------|------------------+
-| |                v                  |
-| | +-----------------------------------+
-| | | If OTPs Match:                    |
-| | | - Display "OTP verified successfully" |
-| | +-----------------------------------+
-| |                |
-| |                v
-| +-----------------------------------+
-| | If OTPs Don't Match:                |
-| | - Display "Invalid OTP"             |
-| +-----------------------------------+
-|                |
-|                v
-+-----------------------------------+
-|       User Sees Result on         |
-|        JSP Frontend Page          |
-+-----------------------------------+
+Here's a summary of session management in a Java Spring Boot web application:
+
+Basic Configuration:
+
+Session Timeout: Set the session timeout period in application.properties (e.g., server.servlet.session.timeout=30m).
+Spring Security Configuration: Define session management in your security configuration, including setting session creation policies, handling concurrent sessions, and configuring logout behavior.
+Single Active Session:
+
+Custom Session Listener: Implement HttpSessionListener to track and manage active sessions using a concurrent data structure.
+Custom Authentication Filter: Extend UsernamePasswordAuthenticationFilter to check for existing sessions and manage new session creation.
+Integrate Filter: Configure Spring Security to use the custom authentication filter.
+Session Expiration and Termination:
+
+Session Expiration: Automatically handled by Spring Security based on the timeout configuration. Customize redirection for expired sessions.
+Session Termination: Sessions are invalidated on logout and will expire based on the timeout setting.
+Custom Session Management:
+
+Session Attributes: Use HttpSession to store and manage session attributes in your controllers.
+This setup ensures proper session handling, including single session enforcement, timeout management, and custom session data handling.
