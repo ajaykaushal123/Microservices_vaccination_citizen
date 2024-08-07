@@ -1,19 +1,52 @@
-Here's a summary of session management in a Java Spring Boot web application:
+<div class="container">
+  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <div>
+      <label for="firstName">First Name</label>
+      <input id="firstName" formControlName="firstName" type="text">
+    </div>
 
-Basic Configuration:
+    <div>
+      <label for="middleName">Middle Name</label>
+      <input id="middleName" formControlName="middleName" type="text">
+    </div>
 
-Session Timeout: Set the session timeout period in application.properties (e.g., server.servlet.session.timeout=30m).
-Spring Security Configuration: Define session management in your security configuration, including setting session creation policies, handling concurrent sessions, and configuring logout behavior.
-Single Active Session:
+    <div>
+      <label for="lastName">Last Name</label>
+      <input id="lastName" formControlName="lastName" type="text">
+    </div>
 
-Custom Session Listener: Implement HttpSessionListener to track and manage active sessions using a concurrent data structure.
-Custom Authentication Filter: Extend UsernamePasswordAuthenticationFilter to check for existing sessions and manage new session creation.
-Integrate Filter: Configure Spring Security to use the custom authentication filter.
-Session Expiration and Termination:
+    <div>
+      <label for="mobileNumber">Mobile Number</label>
+      <input id="mobileNumber" formControlName="mobileNumber" type="text">
+    </div>
 
-Session Expiration: Automatically handled by Spring Security based on the timeout configuration. Customize redirection for expired sessions.
-Session Termination: Sessions are invalidated on logout and will expire based on the timeout setting.
-Custom Session Management:
+    <div>
+      <label for="email">Email ID</label>
+      <input id="email" formControlName="email" type="email">
+    </div>
 
-Session Attributes: Use HttpSession to store and manage session attributes in your controllers.
-This setup ensures proper session handling, including single session enforcement, timeout management, and custom session data handling.
+    <div>
+      <label for="branch">Branch</label>
+      <input id="branch" formControlName="branch" type="text">
+    </div>
+
+    <div>
+      <label for="pincode">Pincode</label>
+      <input id="pincode" formControlName="pincode" type="text">
+    </div>
+
+    <div>
+      <label for="mobileOtp">Mobile OTP</label>
+      <input id="mobileOtp" formControlName="mobileOtp" type="text">
+    </div>
+
+    <div>
+      <label for="emailOtp">Email OTP</label>
+      <input id="emailOtp" formControlName="emailOtp" type="text">
+    </div>
+
+    <div>
+      <button type="submit">Confirm</button>
+    </div>
+  </form>
+</div>
