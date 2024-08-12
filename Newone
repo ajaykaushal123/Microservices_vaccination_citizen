@@ -50,3 +50,114 @@
     </div>
   </form>
 </div>
+
+
+:::::
+<div class="container">
+  <form (ngSubmit)="onSubmit()" #form="ngForm">
+    <div class="form-group">
+      <label for="field1">Field 1</label>
+      <input type="text" id="field1" name="field1" [(ngModel)]="field1" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="field2">Field 2</label>
+      <input type="text" id="field2" name="field2" [(ngModel)]="field2" class="form-control" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
+
+
+:::::
+import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+  selector: 'app-input-form',
+  templateUrl: './input-form.component.html',
+  styleUrls: ['./input-form.component.css']
+})
+export class InputFormComponent {
+  field1: string = '';
+  field2: string = '';
+
+  constructor(private http: HttpClient) { }
+
+  onSubmit() {
+    const payload = {
+      field1: this.field1,
+      field2: this.field2
+    };
+
+    this.http.post('http://localhost:8080/api/submit', payload)
+      .subscribe(response => {
+        console.log('Response from backend:', response);
+      }, error => {
+        console.error('Error:', error);
+      });
+  }
+}
+
+:::::
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+
+import { AppComponent } from './app.component';
+import { InputFormComponent } from './input-form/input-form.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    InputFormComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    HttpClientModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+:::
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api")
+public class ApiController {
+
+    @PostMapping("/submit")
+    public String submitData(@RequestBody InputData inputData) {
+        // Handle the received data
+        System.out.println("Received data: " + inputData.getField1() + ", " + inputData.getField2());
+        return "Data received successfully!";
+    }
+
+    public static class InputData {
+        private String field1;
+        private String field2;
+
+        // Getters and Setters
+
+        public String getField1() {
+            return field1;
+        }
+
+        public void setField1(String field1) {
+            this.field1 = field1;
+        }
+
+        public String getField2() {
+            return field2;
+        }
+
+        public void setField2(String field2) {
+            this.field2 = field2;
+        }
+    }
+}
