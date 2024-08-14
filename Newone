@@ -1,163 +1,193 @@
-<div class="container">
-  <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-    <div>
-      <label for="firstName">First Name</label>
-      <input id="firstName" formControlName="firstName" type="text">
-    </div>
+from zipfile import ZipFile
+import os
 
-    <div>
-      <label for="middleName">Middle Name</label>
-      <input id="middleName" formControlName="middleName" type="text">
-    </div>
+# File structure and content
+files = {
+    "otp-service/src/main/java/com/example/otpservice/OtpServiceApplication.java": """\
+package com.example.otpservice;
 
-    <div>
-      <label for="lastName">Last Name</label>
-      <input id="lastName" formControlName="lastName" type="text">
-    </div>
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-    <div>
-      <label for="mobileNumber">Mobile Number</label>
-      <input id="mobileNumber" formControlName="mobileNumber" type="text">
-    </div>
+@SpringBootApplication
+public class OtpServiceApplication {
 
-    <div>
-      <label for="email">Email ID</label>
-      <input id="email" formControlName="email" type="email">
-    </div>
+    public static void main(String[] args) {
+        SpringApplication.run(OtpServiceApplication.class, args);
+    }
 
-    <div>
-      <label for="branch">Branch</label>
-      <input id="branch" formControlName="branch" type="text">
-    </div>
-
-    <div>
-      <label for="pincode">Pincode</label>
-      <input id="pincode" formControlName="pincode" type="text">
-    </div>
-
-    <div>
-      <label for="mobileOtp">Mobile OTP</label>
-      <input id="mobileOtp" formControlName="mobileOtp" type="text">
-    </div>
-
-    <div>
-      <label for="emailOtp">Email OTP</label>
-      <input id="emailOtp" formControlName="emailOtp" type="text">
-    </div>
-
-    <div>
-      <button type="submit">Confirm</button>
-    </div>
-  </form>
-</div>
-
-
-:::::
-<div class="container">
-  <form (ngSubmit)="onSubmit()" #form="ngForm">
-    <div class="form-group">
-      <label for="field1">Field 1</label>
-      <input type="text" id="field1" name="field1" [(ngModel)]="field1" class="form-control" required>
-    </div>
-
-    <div class="form-group">
-      <label for="field2">Field 2</label>
-      <input type="text" id="field2" name="field2" [(ngModel)]="field2" class="form-control" required>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-</div>
-
-
-:::::
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-
-@Component({
-  selector: 'app-input-form',
-  templateUrl: './input-form.component.html',
-  styleUrls: ['./input-form.component.css']
-})
-export class InputFormComponent {
-  field1: string = '';
-  field2: string = '';
-
-  constructor(private http: HttpClient) { }
-
-  onSubmit() {
-    const payload = {
-      field1: this.field1,
-      field2: this.field2
-    };
-
-    this.http.post('http://localhost:8080/api/submit', payload)
-      .subscribe(response => {
-        console.log('Response from backend:', response);
-      }, error => {
-        console.error('Error:', error);
-      });
-  }
 }
+""",
 
-:::::
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+    "otp-service/src/main/java/com/example/otpservice/model/OTP.java": """\
+package com.example.otpservice.model;
 
-import { AppComponent } from './app.component';
-import { InputFormComponent } from './input-form/input-form.component';
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Data;
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    InputFormComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpClientModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
+import java.time.LocalDateTime;
 
-:::
+@Data
+@Entity
+public class OTP {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String otp;
+    private String mobileNumber;
+    private LocalDateTime expiryTime;
+}
+""",
+
+    "otp-service/src/main/java/com/example/otpservice/repository/OTPRepository.java": """\
+package com.example.otpservice.repository;
+
+import com.example.otpservice.model.OTP;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface OTPRepository extends JpaRepository<OTP, Long> {
+    Optional<OTP> findByMobileNumber(String mobileNumber);
+}
+""",
+
+    "otp-service/src/main/java/com/example/otpservice/service/OTPService.java": """\
+package com.example.otpservice.service;
+
+import com.example.otpservice.model.OTP;
+import com.example.otpservice.repository.OTPRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+@Service
+public class OTPService {
+
+    @Autowired
+    private OTPRepository otpRepository;
+
+    private static final int OTP_VALIDITY_MINUTES = 5;
+    private SecureRandom secureRandom = new SecureRandom();
+
+    public OTP generateOTP(String mobileNumber) {
+        String otp = String.format("%06d", secureRandom.nextInt(999999));
+        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(OTP_VALIDITY_MINUTES);
+
+        OTP otpEntity = new OTP();
+        otpEntity.setOtp(otp);
+        otpEntity.setMobileNumber(mobileNumber);
+        otpEntity.setExpiryTime(expiryTime);
+
+        otpRepository.save(otpEntity);
+        return otpEntity;
+    }
+
+    public boolean verifyOTP(String mobileNumber, String otp) {
+        Optional<OTP> otpEntityOpt = otpRepository.findByMobileNumber(mobileNumber);
+
+        if (otpEntityOpt.isPresent()) {
+            OTP otpEntity = otpEntityOpt.get();
+            if (otpEntity.getOtp().equals(otp) && otpEntity.getExpiryTime().isAfter(LocalDateTime.now())) {
+                otpRepository.delete(otpEntity);
+                return true;
+            }
+        }
+        return false;
+    }
+}
+""",
+
+    "otp-service/src/main/java/com/example/otpservice/service/DummyOTPService.java": """\
+package com.example.otpservice.service;
+
+import com.example.otpservice.model.OTP;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+@Service
+public class DummyOTPService {
+
+    private static final String DUMMY_OTP = "123456";
+    private static final int OTP_VALIDITY_MINUTES = 5;
+
+    public OTP generateDummyOTP(String mobileNumber) {
+        OTP otpEntity = new OTP();
+        otpEntity.setOtp(DUMMY_OTP);
+        otpEntity.setMobileNumber(mobileNumber);
+        otpEntity.setExpiryTime(LocalDateTime.now().plusMinutes(OTP_VALIDITY_MINUTES));
+
+        return otpEntity;
+    }
+
+    public boolean verifyDummyOTP(String mobileNumber, String otp) {
+        return DUMMY_OTP.equals(otp);
+    }
+}
+""",
+
+    "otp-service/src/main/java/com/example/otpservice/controller/OTPController.java": """\
+package com.example.otpservice.controller;
+
+import com.example.otpservice.model.OTP;
+import com.example.otpservice.service.OTPService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
-public class ApiController {
+@RequestMapping("/api/otp")
+public class OTPController {
 
-    @PostMapping("/submit")
-    public String submitData(@RequestBody InputData inputData) {
-        // Handle the received data
-        System.out.println("Received data: " + inputData.getField1() + ", " + inputData.getField2());
-        return "Data received successfully!";
+    @Autowired
+    private OTPService otpService;
+
+    @PostMapping("/generate")
+    public OTP generateOTP(@RequestBody String mobileNumber) {
+        return otpService.generateOTP(mobileNumber);
     }
 
-    public static class InputData {
-        private String field1;
-        private String field2;
-
-        // Getters and Setters
-
-        public String getField1() {
-            return field1;
-        }
-
-        public void setField1(String field1) {
-            this.field1 = field1;
-        }
-
-        public String getField2() {
-            return field2;
-        }
-
-        public void setField2(String field2) {
-            this.field2 = field2;
-        }
+    @PostMapping("/verify")
+    public boolean verifyOTP(@RequestBody OTP otpRequest) {
+        return otpService.verifyOTP(otpRequest.getMobileNumber(), otpRequest.getOtp());
     }
 }
+""",
+
+    "otp-service/src/main/java/com/example/otpservice/controller/DummyOTPController.java": """\
+package com.example.otpservice.controller;
+
+import com.example.otpservice.model.OTP;
+import com.example.otpservice.service.DummyOTPService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/dummy-otp")
+public class DummyOTPController {
+
+    @Autowired
+    private DummyOTPService dummyOTPService;
+
+    @PostMapping("/generate")
+    public OTP generateDummyOTP(@RequestBody String mobileNumber) {
+        return dummyOTPService.generateDummyOTP(mobileNumber);
+    }
+
+    @PostMapping("/verify")
+    public boolean verifyDummyOTP(@RequestBody OTP otpRequest) {
+        return dummyOTPService.verifyDummyOTP(otpRequest.getMobileNumber(), otpRequest.getOtp());
+    }
+}
+""",
+}
+
+# Create zip file
+zip_file_path = '/mnt/data/otp-service.zip
