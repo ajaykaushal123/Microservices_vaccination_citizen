@@ -1,193 +1,170 @@
-from zipfile import ZipFile
-import os
+ss
+<div class="container">
+  <h2>User Details</h2>
+  <form (ngSubmit)="onSubmit()" #userForm="ngForm">
+    <div class="form-group">
+      <label for="firstName">First Name:</label>
+      <input type="text" class="form-control" id="firstName" required [(ngModel)]="user.firstName" name="firstName">
+    </div>
 
-# File structure and content
-files = {
-    "otp-service/src/main/java/com/example/otpservice/OtpServiceApplication.java": """\
-package com.example.otpservice;
+    <div class="form-group">
+      <label for="mobileNumber">Mobile Number:</label>
+      <input type="text" class="form-control" id="mobileNumber" required [(ngModel)]="user.mobileNumber" name="mobileNumber">
+    </div>
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+    <div class="form-group">
+      <label for="branch">Branch:</label>
+      <input type="text" class="form-control" id="branch" required [(ngModel)]="user.branch" name="branch">
+    </div>
 
-@SpringBootApplication
-public class OtpServiceApplication {
+    <div class="form-group">
+      <label for="otp">Mobile OTP:</label>
+      <input type="text" class="form-control" id="otp" [(ngModel)]="user.otp" name="otp">
+    </div>
 
-    public static void main(String[] args) {
-        SpringApplication.run(OtpServiceApplication.class, args);
+    <button type="submit" class="btn btn-primary">Confirm</button>
+  </form>
+</div>
+ddffffffff
+import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+  selector: 'app-user-details',
+  templateUrl: './user-details.component.html',
+  styleUrls: ['./user-details.component.css']
+})
+export class UserDetailsComponent {
+  user: any = {
+    firstName: '',
+    mobileNumber: '',
+    branch: '',
+    otp: ''
+  };
+
+  constructor(private http: HttpClient) {}
+
+  onSubmit() {
+    // Generate OTP
+    this.http.post('http://localhost:8080/mobileAPI/generate', this.user.mobileNumber)
+      .subscribe(
+        response => {
+          console.log('OTP sent successfully');
+          // Handle successful OTP generation
+        },
+        error => {
+          console.error('Error generating OTP', error);
+          // Handle error
+        }
+      );
+
+    // Verify OTP (This would be typically triggered after user receives and enters OTP)
+    if (this.user.otp) {
+      this.http.post('http://localhost:8080/mobileAPI/verify', {
+        mobileNumber: this.user.mobileNumber,
+        otp: this.user.otp
+      }).subscribe(
+        response => {
+          console.log('OTP verified successfully');
+          // Handle successful OTP verification
+        },
+        error => {
+          console.error('Error verifying OTP', error);
+          // Handle error
+        }
+      );
     }
-
+  }
 }
-""",
 
-    "otp-service/src/main/java/com/example/otpservice/model/OTP.java": """\
-package com.example.otpservice.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Data;
 
-import java.time.LocalDateTime;
 
-@Data
-@Entity
-public class OTP {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    private String otp;
-    private String mobileNumber;
-    private LocalDateTime expiryTime;
-}
-""",
+gggggg
 
-    "otp-service/src/main/java/com/example/otpservice/repository/OTPRepository.java": """\
-package com.example.otpservice.repository;
 
-import com.example.otpservice.model.OTP;
-import org.springframework.data.jpa.repository.JpaRepository;
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 
-import java.util.Optional;
+import { AppComponent } from './app.component';
+import { UserDetailsComponent } from './user-details/user-details.component';
 
-public interface OTPRepository extends JpaRepository<OTP, Long> {
-    Optional<OTP> findByMobileNumber(String mobileNumber);
-}
-""",
+@NgModule({
+  declarations: [
+    AppComponent,
+    UserDetailsComponent
+  ],
+  imports: [
+    BrowserModule,
+    HttpClientModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
 
-    "otp-service/src/main/java/com/example/otpservice/service/OTPService.java": """\
-package com.example.otpservice.service;
 
-import com.example.otpservice.model.OTP;
-import com.example.otpservice.repository.OTPRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+kkkkkkkk
+
+
+
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class OTPService {
-
-    @Autowired
-    private OTPRepository otpRepository;
-
-    private static final int OTP_VALIDITY_MINUTES = 5;
-    private SecureRandom secureRandom = new SecureRandom();
-
-    public OTP generateOTP(String mobileNumber) {
-        String otp = String.format("%06d", secureRandom.nextInt(999999));
-        LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(OTP_VALIDITY_MINUTES);
-
-        OTP otpEntity = new OTP();
-        otpEntity.setOtp(otp);
-        otpEntity.setMobileNumber(mobileNumber);
-        otpEntity.setExpiryTime(expiryTime);
-
-        otpRepository.save(otpEntity);
-        return otpEntity;
+    
+    private String generatedOtp;
+    
+    public String generateOTP(String mobileNumber) {
+        Random random = new Random();
+        generatedOtp = String.format("%06d", random.nextInt(999999));
+        // Save the OTP and mobile number for verification (in memory or DB)
+        return generatedOtp;
     }
 
     public boolean verifyOTP(String mobileNumber, String otp) {
-        Optional<OTP> otpEntityOpt = otpRepository.findByMobileNumber(mobileNumber);
-
-        if (otpEntityOpt.isPresent()) {
-            OTP otpEntity = otpEntityOpt.get();
-            if (otpEntity.getOtp().equals(otp) && otpEntity.getExpiryTime().isAfter(LocalDateTime.now())) {
-                otpRepository.delete(otpEntity);
-                return true;
-            }
-        }
-        return false;
+        // Verify the OTP with the saved OTP
+        return generatedOtp != null && generatedOtp.equals(otp);
     }
 }
-""",
 
-    "otp-service/src/main/java/com/example/otpservice/service/DummyOTPService.java": """\
-package com.example.otpservice.service;
 
-import com.example.otpservice.model.OTP;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+kkkkkk
 
-@Service
-public class DummyOTPService {
 
-    private static final String DUMMY_OTP = "123456";
-    private static final int OTP_VALIDITY_MINUTES = 5;
-
-    public OTP generateDummyOTP(String mobileNumber) {
-        OTP otpEntity = new OTP();
-        otpEntity.setOtp(DUMMY_OTP);
-        otpEntity.setMobileNumber(mobileNumber);
-        otpEntity.setExpiryTime(LocalDateTime.now().plusMinutes(OTP_VALIDITY_MINUTES));
-
-        return otpEntity;
-    }
-
-    public boolean verifyDummyOTP(String mobileNumber, String otp) {
-        return DUMMY_OTP.equals(otp);
-    }
-}
-""",
-
-    "otp-service/src/main/java/com/example/otpservice/controller/OTPController.java": """\
-package com.example.otpservice.controller;
-
-import com.example.otpservice.model.OTP;
-import com.example.otpservice.service.OTPService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/otp")
+@RequestMapping("/mobileAPI")
 public class OTPController {
 
     @Autowired
     private OTPService otpService;
 
     @PostMapping("/generate")
-    public OTP generateOTP(@RequestBody String mobileNumber) {
-        return otpService.generateOTP(mobileNumber);
+    public ResponseEntity<String> generateOtp(@RequestBody String mobileNumber) {
+        String otp = otpService.generateOTP(mobileNumber);
+        return ResponseEntity.ok(otp);
     }
 
     @PostMapping("/verify")
-    public boolean verifyOTP(@RequestBody OTP otpRequest) {
-        return otpService.verifyOTP(otpRequest.getMobileNumber(), otpRequest.getOtp());
+    public ResponseEntity<Boolean> verifyOtp(@RequestBody OTPRequest otpRequest) {
+        boolean isValid = otpService.verifyOTP(otpRequest.getMobileNumber(), otpRequest.getOtp());
+        return ResponseEntity.ok(isValid);
     }
 }
-""",
 
-    "otp-service/src/main/java/com/example/otpservice/controller/DummyOTPController.java": """\
-package com.example.otpservice.controller;
+class OTPRequest {
+    private String mobileNumber;
+    private String otp;
 
-import com.example.otpservice.model.OTP;
-import com.example.otpservice.service.DummyOTPService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/api/dummy-otp")
-public class DummyOTPController {
-
-    @Autowired
-    private DummyOTPService dummyOTPService;
-
-    @PostMapping("/generate")
-    public OTP generateDummyOTP(@RequestBody String mobileNumber) {
-        return dummyOTPService.generateDummyOTP(mobileNumber);
-    }
-
-    @PostMapping("/verify")
-    public boolean verifyDummyOTP(@RequestBody OTP otpRequest) {
-        return dummyOTPService.verifyDummyOTP(otpRequest.getMobileNumber(), otpRequest.getOtp());
-    }
-}
-""",
+    // Getters and Setters
 }
 
-# Create zip file
-zip_file_path = '/mnt/data/otp-service.zip
+ß
