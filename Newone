@@ -1,170 +1,136 @@
-ss
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            width: 25%;
+            margin-right: 10px;
+        }
+        .form-group input {
+            width: 70%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .form-group .valid {
+            color: green;
+            font-weight: bold;
+        }
+        .otp-group {
+            margin-top: 20px;
+        }
+        .otp-group input {
+            width: 40%;
+            margin-right: 10px;
+        }
+        .otp-group button {
+            padding: 10px 20px;
+            background-color: #ffca28;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .otp-group button:disabled {
+            background-color: #ccc;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+        .buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .buttons .confirm {
+            background-color: #ffca28;
+        }
+        .buttons .cancel {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
 <div class="container">
-  <h2>User Details</h2>
-  <form (ngSubmit)="onSubmit()" #userForm="ngForm">
+    <h2>User Details</h2>
     <div class="form-group">
-      <label for="firstName">First Name:</label>
-      <input type="text" class="form-control" id="firstName" required [(ngModel)]="user.firstName" name="firstName">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" value="Arun">
+    </div>
+    <div class="form-group">
+        <label for="middleName">Middle Name</label>
+        <input type="text" id="middleName" value="P">
+    </div>
+    <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" value="Kumar">
+    </div>
+    <div class="form-group">
+        <label for="mobileNumber">Mobile Number</label>
+        <input type="text" id="mobileNumber" value="0987654321">
+    </div>
+    <div class="form-group">
+        <label for="emailId">Email ID</label>
+        <input type="email" id="emailId" value="akumar@hdfc.com">
+        <span class="valid">Valid</span>
+    </div>
+    <div class="form-group">
+        <label for="branch">Branch</label>
+        <input type="text" id="branch" value="Kalyan Nagar, Bangalore">
+    </div>
+    <div class="form-group">
+        <label for="pincode">Pincode</label>
+        <input type="text" id="pincode" value="560043">
     </div>
 
-    <div class="form-group">
-      <label for="mobileNumber">Mobile Number:</label>
-      <input type="text" class="form-control" id="mobileNumber" required [(ngModel)]="user.mobileNumber" name="mobileNumber">
+    <div class="otp-group">
+        <h3>Please Enter OTP Received to your Mobile Number and Registered Email ID</h3>
+        <div class="form-group">
+            <input type="text" id="mobileOtp" placeholder="Mobile OTP" value="123343">
+            <input type="text" id="emailOtp" placeholder="Email ID OTP" value="2323232">
+            <span class="error">*Incorrect OTP Please enter correct OTP</span>
+        </div>
+        <button disabled>30s resend OTP</button>
+        <button>Resend</button>
     </div>
 
-    <div class="form-group">
-      <label for="branch">Branch:</label>
-      <input type="text" class="form-control" id="branch" required [(ngModel)]="user.branch" name="branch">
+    <div class="buttons">
+        <button class="cancel">Cancel</button>
+        <button class="confirm">Confirm</button>
     </div>
-
-    <div class="form-group">
-      <label for="otp">Mobile OTP:</label>
-      <input type="text" class="form-control" id="otp" [(ngModel)]="user.otp" name="otp">
-    </div>
-
-    <button type="submit" class="btn btn-primary">Confirm</button>
-  </form>
 </div>
-ddffffffff
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 
-@Component({
-  selector: 'app-user-details',
-  templateUrl: './user-details.component.html',
-  styleUrls: ['./user-details.component.css']
-})
-export class UserDetailsComponent {
-  user: any = {
-    firstName: '',
-    mobileNumber: '',
-    branch: '',
-    otp: ''
-  };
-
-  constructor(private http: HttpClient) {}
-
-  onSubmit() {
-    // Generate OTP
-    this.http.post('http://localhost:8080/mobileAPI/generate', this.user.mobileNumber)
-      .subscribe(
-        response => {
-          console.log('OTP sent successfully');
-          // Handle successful OTP generation
-        },
-        error => {
-          console.error('Error generating OTP', error);
-          // Handle error
-        }
-      );
-
-    // Verify OTP (This would be typically triggered after user receives and enters OTP)
-    if (this.user.otp) {
-      this.http.post('http://localhost:8080/mobileAPI/verify', {
-        mobileNumber: this.user.mobileNumber,
-        otp: this.user.otp
-      }).subscribe(
-        response => {
-          console.log('OTP verified successfully');
-          // Handle successful OTP verification
-        },
-        error => {
-          console.error('Error verifying OTP', error);
-          // Handle error
-        }
-      );
-    }
-  }
-}
-
-
-
-
-gggggg
-
-
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
-
-import { AppComponent } from './app.component';
-import { UserDetailsComponent } from './user-details/user-details.component';
-
-@NgModule({
-  declarations: [
-    AppComponent,
-    UserDetailsComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
-
-
-kkkkkkkk
-
-
-
-import org.springframework.stereotype.Service;
-
-import java.util.Random;
-
-@Service
-public class OTPService {
-    
-    private String generatedOtp;
-    
-    public String generateOTP(String mobileNumber) {
-        Random random = new Random();
-        generatedOtp = String.format("%06d", random.nextInt(999999));
-        // Save the OTP and mobile number for verification (in memory or DB)
-        return generatedOtp;
-    }
-
-    public boolean verifyOTP(String mobileNumber, String otp) {
-        // Verify the OTP with the saved OTP
-        return generatedOtp != null && generatedOtp.equals(otp);
-    }
-}
-
-
-
-kkkkkk
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-@RestController
-@RequestMapping("/mobileAPI")
-public class OTPController {
-
-    @Autowired
-    private OTPService otpService;
-
-    @PostMapping("/generate")
-    public ResponseEntity<String> generateOtp(@RequestBody String mobileNumber) {
-        String otp = otpService.generateOTP(mobileNumber);
-        return ResponseEntity.ok(otp);
-    }
-
-    @PostMapping("/verify")
-    public ResponseEntity<Boolean> verifyOtp(@RequestBody OTPRequest otpRequest) {
-        boolean isValid = otpService.verifyOTP(otpRequest.getMobileNumber(), otpRequest.getOtp());
-        return ResponseEntity.ok(isValid);
-    }
-}
-
-class OTPRequest {
-    private String mobileNumber;
-    private String otp;
-
-    // Getters and Setters
-}
-
-ß
+</body>
+</html>
