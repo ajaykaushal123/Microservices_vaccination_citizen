@@ -9,8 +9,18 @@
   <button (click)="onCancel()">Cancel</button>
 </div>
 
-jjj
+<div *ngIf="showInputFields">
+  <!-- Mobile Input Field -->
+  <label for="mobile">Mobile:</label>
+  <input type="text" id="mobile" [(ngModel)]="mobile">
 
+  <!-- Email Input Field -->
+  <label for="email">Email:</label>
+  <input type="email" id="email" [(ngModel)]="email">
+</div>
+
+
+ggggg
 import { Component } from '@angular/core';
 
 @Component({
@@ -23,24 +33,29 @@ export class ExampleComponent {
   // Initial states
   showProceedButton = true;
   showConfirmButton = false;
+  showInputFields = false;
+
+  // Input field values
+  mobile: string = '';
+  email: string = '';
 
   // Method to handle Proceed button click
   onProceed(): void {
     this.showProceedButton = false;
     this.showConfirmButton = true;
+    this.showInputFields = true;
   }
 
   // Method to handle Confirm button click
   onConfirm(): void {
-    alert('Confirm button clicked!');
-    // You can add additional logic for confirmation here
+    alert('Confirm button clicked! Mobile: ' + this.mobile + ', Email: ' + this.email);
+    // Add additional logic for confirmation here
   }
 
   // Method to handle Cancel button click
   onCancel(): void {
     alert('Cancel button clicked!');
-    // You can add additional logic for cancellation here
+    // Add additional logic for cancellation here
   }
 }
 
-jjj
