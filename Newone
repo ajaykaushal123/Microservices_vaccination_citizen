@@ -1,136 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            margin-bottom: 20px;
-        }
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            width: 25%;
-            margin-right: 10px;
-        }
-        .form-group input {
-            width: 70%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        .form-group .valid {
-            color: green;
-            font-weight: bold;
-        }
-        .otp-group {
-            margin-top: 20px;
-        }
-        .otp-group input {
-            width: 40%;
-            margin-right: 10px;
-        }
-        .otp-group button {
-            padding: 10px 20px;
-            background-color: #ffca28;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .otp-group button:disabled {
-            background-color: #ccc;
-        }
-        .error {
-            color: red;
-            font-size: 12px;
-        }
-        .buttons {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .buttons button {
-            padding: 10px 20px;
-            margin: 0 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .buttons .confirm {
-            background-color: #ffca28;
-        }
-        .buttons .cancel {
-            background-color: #ccc;
-        }
-    </style>
-</head>
-<body>
+<div>
+  <!-- Proceed Button -->
+  <button *ngIf="showProceedButton" (click)="onProceed()">Proceed</button>
 
-<div class="container">
-    <h2>User Details</h2>
-    <div class="form-group">
-        <label for="firstName">First Name</label>
-        <input type="text" id="firstName" value="Arun">
-    </div>
-    <div class="form-group">
-        <label for="middleName">Middle Name</label>
-        <input type="text" id="middleName" value="P">
-    </div>
-    <div class="form-group">
-        <label for="lastName">Last Name</label>
-        <input type="text" id="lastName" value="Kumar">
-    </div>
-    <div class="form-group">
-        <label for="mobileNumber">Mobile Number</label>
-        <input type="text" id="mobileNumber" value="0987654321">
-    </div>
-    <div class="form-group">
-        <label for="emailId">Email ID</label>
-        <input type="email" id="emailId" value="akumar@hdfc.com">
-        <span class="valid">Valid</span>
-    </div>
-    <div class="form-group">
-        <label for="branch">Branch</label>
-        <input type="text" id="branch" value="Kalyan Nagar, Bangalore">
-    </div>
-    <div class="form-group">
-        <label for="pincode">Pincode</label>
-        <input type="text" id="pincode" value="560043">
-    </div>
+  <!-- Confirm Button -->
+  <button *ngIf="showConfirmButton" (click)="onConfirm()">Confirm</button>
 
-    <div class="otp-group">
-        <h3>Please Enter OTP Received to your Mobile Number and Registered Email ID</h3>
-        <div class="form-group">
-            <input type="text" id="mobileOtp" placeholder="Mobile OTP" value="123343">
-            <input type="text" id="emailOtp" placeholder="Email ID OTP" value="2323232">
-            <span class="error">*Incorrect OTP Please enter correct OTP</span>
-        </div>
-        <button disabled>30s resend OTP</button>
-        <button>Resend</button>
-    </div>
-
-    <div class="buttons">
-        <button class="cancel">Cancel</button>
-        <button class="confirm">Confirm</button>
-    </div>
+  <!-- Cancel Button -->
+  <button (click)="onCancel()">Cancel</button>
 </div>
 
-</body>
-</html>
+jjj
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-example',
+  templateUrl: './example.component.html',
+  styleUrls: ['./example.component.css']
+})
+export class ExampleComponent {
+
+  // Initial states
+  showProceedButton = true;
+  showConfirmButton = false;
+
+  // Method to handle Proceed button click
+  onProceed(): void {
+    this.showProceedButton = false;
+    this.showConfirmButton = true;
+  }
+
+  // Method to handle Confirm button click
+  onConfirm(): void {
+    alert('Confirm button clicked!');
+    // You can add additional logic for confirmation here
+  }
+
+  // Method to handle Cancel button click
+  onCancel(): void {
+    alert('Cancel button clicked!');
+    // You can add additional logic for cancellation here
+  }
+}
+
+jjj
