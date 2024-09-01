@@ -1,61 +1,42 @@
-<div>
-  <!-- Proceed Button -->
-  <button *ngIf="showProceedButton" (click)="onProceed()">Proceed</button>
+<button (click)="resendOtp()" [disabled]="isButtonDisabled">
+  Resend OTP
+  <span *ngIf="isButtonDisabled">({{ countdown }})</span>
+</button>
 
-  <!-- Confirm Button -->
-  <button *ngIf="showConfirmButton" (click)="onConfirm()">Confirm</button>
-
-  <!-- Cancel Button -->
-  <button (click)="onCancel()">Cancel</button>
-</div>
-
-<div *ngIf="showInputFields">
-  <!-- Mobile Input Field -->
-  <label for="mobile">Mobile:</label>
-  <input type="text" id="mobile" [(ngModel)]="mobile">
-
-  <!-- Email Input Field -->
-  <label for="email">Email:</label>
-  <input type="email" id="email" [(ngModel)]="email">
-</div>
-
-
-ggggg
-import { Component } from '@angular/core';
+***********************
+import { Component, OnInit } from '@angular/core';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-example',
-  templateUrl: './example.component.html',
-  styleUrls: ['./example.component.css']
+  selector: 'app-otp',
+  templateUrl: './otp.component.html',
+  styleUrls: ['./otp.component.css']
 })
-export class ExampleComponent {
+export class OtpComponent implements OnInit {
+  countdown: number = 30;
+  isButtonDisabled: boolean = true;
+  private timerSubscription: Subscription;
 
-  // Initial states
-  showProceedButton = true;
-  showConfirmButton = false;
-  showInputFields = false;
-
-  // Input field values
-  mobile: string = '';
-  email: string = '';
-
-  // Method to handle Proceed button click
-  onProceed(): void {
-    this.showProceedButton = false;
-    this.showConfirmButton = true;
-    this.showInputFields = true;
+  ngOnInit(): void {
+    this.startTimer();
   }
 
-  // Method to handle Confirm button click
-  onConfirm(): void {
-    alert('Confirm button clicked! Mobile: ' + this.mobile + ', Email: ' + this.email);
-    // Add additional logic for confirmation here
+  startTimer() {
+    this.isButtonDisabled = true;
+    this.countdown = 30;
+
+    this.timerSubscription = interval(1000).subscribe(() => {
+      if (this.countdown > 0) {
+        this.countdown--;
+      } else {
+        this.isButtonDisabled = false;
+        this.timerSubscription.unsubscribe();
+      }
+    });
   }
 
-  // Method to handle Cancel button click
-  onCancel(): void {
-    alert('Cancel button clicked!');
-    // Add additional logic for cancellation here
+  resendOtp() {
+    // Logic to resend OTP goes here.
+    this.startTimer(); // Restart the timer after resending OTP.
   }
 }
-
