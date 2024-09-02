@@ -1,42 +1,61 @@
-<button (click)="resendOtp()" [disabled]="isButtonDisabled">
-  Resend OTP
-  <span *ngIf="isButtonDisabled">({{ countdown }})</span>
-</button>
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="firstname">First Name</label>
+    <input id="firstname" formControlName="firstname" />
+    <div *ngIf="f.firstname.invalid && (f.firstname.dirty || f.firstname.touched)">
+      <small *ngIf="f.firstname.errors?.required">First Name is required.</small>
+      <small *ngIf="f.firstname.errors?.minlength">First Name must be at least 2 characters long.</small>
+      <small *ngIf="f.firstname.errors?.maxlength">First Name cannot be more than 50 characters long.</small>
+    </div>
+  </div>
 
-***********************
-import { Component, OnInit } from '@angular/core';
-import { interval, Subscription } from 'rxjs';
+  <button type="submit" [disabled]="userForm.invalid">Submit</button>
+</form>
+cccccc
+
+import { Component } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-otp',
-  templateUrl: './otp.component.html',
-  styleUrls: ['./otp.component.css']
+  selector: 'app-your-component',
+  templateUrl: './your-component.component.html',
+  styleUrls: ['./your-component.component.css']
 })
-export class OtpComponent implements OnInit {
-  countdown: number = 30;
-  isButtonDisabled: boolean = true;
-  private timerSubscription: Subscription;
+export class YourComponent {
+  userForm: FormGroup;
 
-  ngOnInit(): void {
-    this.startTimer();
-  }
-
-  startTimer() {
-    this.isButtonDisabled = true;
-    this.countdown = 30;
-
-    this.timerSubscription = interval(1000).subscribe(() => {
-      if (this.countdown > 0) {
-        this.countdown--;
-      } else {
-        this.isButtonDisabled = false;
-        this.timerSubscription.unsubscribe();
-      }
+  constructor(private fb: FormBuilder) {
+    this.userForm = this.fb.group({
+      firstname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]]
     });
   }
 
-  resendOtp() {
-    // Logic to resend OTP goes here.
-    this.startTimer(); // Restart the timer after resending OTP.
+  // Helper method to access form controls
+  get f() {
+    return this.userForm.controls;
+  }
+
+  onSubmit() {
+    if (this.userForm.invalid) {
+      // Handle form submission when invalid
+      return;
+    }
+    // Handle valid form submission
+    console.log(this.userForm.value);
   }
 }
+cccvv
+import { ReactiveFormsModule } from '@angular/forms';
+
+@NgModule({
+  declarations: [
+    // Your components
+  ],
+  imports: [
+    ReactiveFormsModule,
+    // Other modules
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
