@@ -1,61 +1,31 @@
-<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
-  <div>
-    <label for="firstname">First Name</label>
-    <input id="firstname" formControlName="firstname" />
-    <div *ngIf="f.firstname.invalid && (f.firstname.dirty || f.firstname.touched)">
-      <small *ngIf="f.firstname.errors?.required">First Name is required.</small>
-      <small *ngIf="f.firstname.errors?.minlength">First Name must be at least 2 characters long.</small>
-      <small *ngIf="f.firstname.errors?.maxlength">First Name cannot be more than 50 characters long.</small>
-    </div>
-  </div>
+package com.example.demo.service;
 
-  <button type="submit" [disabled]="userForm.invalid">Submit</button>
-</form>
-cccccc
+import org.springframework.stereotype.Service;
 
-import { Component } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import java.util.regex.Pattern;
 
-@Component({
-  selector: 'app-your-component',
-  templateUrl: './your-component.component.html',
-  styleUrls: ['./your-component.component.css']
-})
-export class YourComponent {
-  userForm: FormGroup;
+@Service
+public class EmailValidationService {
 
-  constructor(private fb: FormBuilder) {
-    this.userForm = this.fb.group({
-      firstname: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]]
-    });
-  }
+    // Regular expression for validating email format
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
-  // Helper method to access form controls
-  get f() {
-    return this.userForm.controls;
-  }
+    // Valid domain for simplicity, stored as a String. You could use a Set for multiple domains.
+    private static final String VALID_DOMAIN = "example.com";
 
-  onSubmit() {
-    if (this.userForm.invalid) {
-      // Handle form submission when invalid
-      return;
+    public boolean isEmailValid(String email) {
+        if (email == null || email.isEmpty()) {
+            return false;
+        }
+
+        // Check if the email matches the regex pattern
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            return false;
+        }
+
+        // Extract domain and check if it matches the valid domain
+        String domain = email.substring(email.indexOf('@') + 1);
+        return VALID_DOMAIN.equals(domain);
     }
-    // Handle valid form submission
-    console.log(this.userForm.value);
-  }
 }
-cccvv
-import { ReactiveFormsModule } from '@angular/forms';
-
-@NgModule({
-  declarations: [
-    // Your components
-  ],
-  imports: [
-    ReactiveFormsModule,
-    // Other modules
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
