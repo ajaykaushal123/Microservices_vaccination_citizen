@@ -1,31 +1,96 @@
-package com.example.demo.service;
-
-import org.springframework.stereotype.Service;
-
-import java.util.regex.Pattern;
-
-@Service
-public class EmailValidationService {
-
-    // Regular expression for validating email format
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
-
-    // Valid domain for simplicity, stored as a String. You could use a Set for multiple domains.
-    private static final String VALID_DOMAIN = "example.com";
-
-    public boolean isEmailValid(String email) {
-        if (email == null || email.isEmpty()) {
-            return false;
-        }
-
-        // Check if the email matches the regex pattern
-        if (!EMAIL_PATTERN.matcher(email).matches()) {
-            return false;
-        }
-
-        // Extract domain and check if it matches the valid domain
-        String domain = email.substring(email.indexOf('@') + 1);
-        return VALID_DOMAIN.equals(domain);
-    }
+.email-checker-container {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
+
+input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+input.is-invalid {
+  border-color: red;
+}
+
+.checkmark {
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+.valid {
+  color: green;
+}
+
+.invalid {
+  color: red;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+
+
+
+
+
+ajay
+
+import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Component({
+  selector: 'app-email-checker',
+  templateUrl: './email-checker.component.html',
+  styleUrls: ['./email-checker.component.css']
+})
+export class EmailCheckerComponent {
+  email: string = '';
+  isValid: boolean = false;
+  isInvalid: boolean = false;
+
+  constructor(private http: HttpClient) {}
+
+  validateEmail(): void {
+    if (this.email) {
+      this.http.get<boolean>(`http://localhost:8080/api/email/validate?email=${this.email}`)
+        .subscribe(
+          response => {
+            this.isValid = response;
+            this.isInvalid = !response;
+          },
+          error => {
+            this.isValid = false;
+            this.isInvalid = true;
+          }
+        );
+    } else {
+      this.isValid = false;
+      this.isInvalid = false;
+    }
+  }
+}
+
+
+bitu
+<div class="email-checker-container">
+  <input
+    type="email"
+    placeholder="Enter your email"
+    [(ngModel)]="email"
+    (ngModelChange)="validateEmail()"
+    [ngClass]="{ 'is-invalid': isInvalid }"
+  />
+
+  <span *ngIf="isValid" class="checkmark valid">&#10003;</span>
+  <span *ngIf="isInvalid" class="checkmark invalid">&#10007;</span>
+
+  <div *ngIf="isInvalid" class="error-message">Enter a valid email address</div>
+</div>
+
+
+
