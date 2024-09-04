@@ -1,96 +1,109 @@
-.email-checker-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
+<div>
+  <!-- Proceed Button -->
+  <button *ngIf="showProceedButton" (click)="onProceed()">Proceed</button>
 
-input {
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 10px;
-}
+  <!-- Confirm Button -->
+  <button *ngIf="showConfirmButton" (click)="onConfirm()">Confirm</button>
 
-input.is-invalid {
-  border-color: red;
-}
+  <!-- Cancel Button -->
+  <button (click)="onCancel()">Cancel</button>
+</div>
 
-.checkmark {
-  font-size: 18px;
-  margin-left: 10px;
-}
+<div *ngIf="showInputFields">
+  <!-- Mobile Input Field -->
+  <label for="mobile">Mobile:</label>
+  <input type="text" id="mobile" [(ngModel)]="mobile">
 
-.valid {
-  color: green;
-}
-
-.invalid {
-  color: red;
-}
-
-.error-message {
-  color: red;
-  font-size: 14px;
-  margin-top: 5px;
+  <!-- Email Input Field -->
+  <label for="email">Email:</label>
+  <input type="email" id="email" [(ngModel)]="email" (blur)="validateEmail()" (input)="validateEmailOnInput()">
+  <div *ngIf="emailValidationMessage">{{ emailValidationMessage }}</div>
+</div>
 
 
-
-
-
-ajay
-
+jjjjjjj
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
-  selector: 'app-email-checker',
-  templateUrl: './email-checker.component.html',
-  styleUrls: ['./email-checker.component.css']
+  selector: 'app-example',
+  templateUrl: './example.component.html',
+  styleUrls: ['./example.component.css']
 })
-export class EmailCheckerComponent {
+export class ExampleComponent {
+
+  // Initial states
+  showProceedButton = true;
+  showConfirmButton = false;
+  showInputFields = false;
+
+  // Input field values
+  mobile: string = '';
   email: string = '';
-  isValid: boolean = false;
-  isInvalid: boolean = false;
+
+  // Validation message
+  emailValidationMessage: string = '';
 
   constructor(private http: HttpClient) {}
 
+  // Method to handle Proceed button click
+  onProceed(): void {
+    this.showProceedButton = false;
+    this.showConfirmButton = true;
+    this.showInputFields = true;
+  }
+
+  // Method to handle Confirm button click
+  onConfirm(): void {
+    alert('Confirm button clicked! Mobile: ' + this.mobile + ', Email: ' + this.email);
+    // Additional logic for confirmation
+  }
+
+  // Method to handle Cancel button click
+  onCancel(): void {
+    alert('Cancel button clicked!');
+    // Additional logic for cancellation
+  }
+
+  // Method to validate email (API call on blur)
   validateEmail(): void {
     if (this.email) {
-      this.http.get<boolean>(`http://localhost:8080/api/email/validate?email=${this.email}`)
-        .subscribe(
-          response => {
-            this.isValid = response;
-            this.isInvalid = !response;
-          },
-          error => {
-            this.isValid = false;
-            this.isInvalid = true;
+      this.http.post<any>('https://your-api-endpoint.com/validate-email', { email: this.email })
+        .subscribe(response => {
+          if (response.isValid) {
+            this.emailValidationMessage = 'Email is valid';
+          } else {
+            this.emailValidationMessage = 'Email is invalid';
           }
-        );
+        }, error => {
+          console.error('Email validation failed', error);
+          this.emailValidationMessage = 'Validation failed';
+        });
     } else {
-      this.isValid = false;
-      this.isInvalid = false;
+      this.emailValidationMessage = 'Email cannot be empty';
+    }
+  }
+
+  // Method to validate email on each input change (API call on input)
+  validateEmailOnInput(): void {
+    if (this.email) {
+      this.http.post<any>('https://your-api-endpoint.com/validate-email-live', { email: this.email })
+        .subscribe(response => {
+          if (response.isValid) {
+            this.emailValidationMessage = 'Email is valid';
+          } else {
+            this.emailValidationMessage = 'Email is invalid';
+          }
+        }, error => {
+          console.error('Email validation failed', error);
+          this.emailValidationMessage = 'Validation failed';
+        });
+    } else {
+      this.emailValidationMessage = '';
     }
   }
 }
 
 
-bitu
-<div class="email-checker-container">
-  <input
-    type="email"
-    placeholder="Enter your email"
-    [(ngModel)]="email"
-    (ngModelChange)="validateEmail()"
-    [ngClass]="{ 'is-invalid': isInvalid }"
-  />
 
-  <span *ngIf="isValid" class="checkmark valid">&#10003;</span>
-  <span *ngIf="isInvalid" class="checkmark invalid">&#10007;</span>
-
-  <div *ngIf="isInvalid" class="error-message">Enter a valid email address</div>
-</div>
-
-
-
+jjjj
