@@ -1,109 +1,51 @@
-<div>
-  <!-- Proceed Button -->
-  <button *ngIf="showProceedButton" (click)="onProceed()">Proceed</button>
-
-  <!-- Confirm Button -->
-  <button *ngIf="showConfirmButton" (click)="onConfirm()">Confirm</button>
-
-  <!-- Cancel Button -->
-  <button (click)="onCancel()">Cancel</button>
-</div>
-
-<div *ngIf="showInputFields">
-  <!-- Mobile Input Field -->
-  <label for="mobile">Mobile:</label>
-  <input type="text" id="mobile" [(ngModel)]="mobile">
-
-  <!-- Email Input Field -->
-  <label for="email">Email:</label>
-  <input type="email" id="email" [(ngModel)]="email" (blur)="validateEmail()" (input)="validateEmailOnInput()">
-  <div *ngIf="emailValidationMessage">{{ emailValidationMessage }}</div>
-</div>
+<mat-form-field appearance="fill">
+  <mat-label>Select an option</mat-label>
+  <mat-select [(value)]="selectedValue" (selectionChange)="onSelectionChange($event)">
+    <mat-option *ngFor="let option of options" [value]="option.value">
+      {{ option.viewValue }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>
 
 
-jjjjjjj
+
+hhhh
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
-  selector: 'app-example',
-  templateUrl: './example.component.html',
-  styleUrls: ['./example.component.css']
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
-export class ExampleComponent {
+export class AppComponent {
+  // Define the options array
+  options = [
+    { value: 'option1', viewValue: 'Option 1' },
+    { value: 'option2', viewValue: 'Option 2' },
+    { value: 'option3', viewValue: 'Option 3' }
+  ];
 
-  // Initial states
-  showProceedButton = true;
-  showConfirmButton = false;
-  showInputFields = false;
+  selectedValue: string = '';
 
-  // Input field values
-  mobile: string = '';
-  email: string = '';
-
-  // Validation message
-  emailValidationMessage: string = '';
-
-  constructor(private http: HttpClient) {}
-
-  // Method to handle Proceed button click
-  onProceed(): void {
-    this.showProceedButton = false;
-    this.showConfirmButton = true;
-    this.showInputFields = true;
-  }
-
-  // Method to handle Confirm button click
-  onConfirm(): void {
-    alert('Confirm button clicked! Mobile: ' + this.mobile + ', Email: ' + this.email);
-    // Additional logic for confirmation
-  }
-
-  // Method to handle Cancel button click
-  onCancel(): void {
-    alert('Cancel button clicked!');
-    // Additional logic for cancellation
-  }
-
-  // Method to validate email (API call on blur)
-  validateEmail(): void {
-    if (this.email) {
-      this.http.post<any>('https://your-api-endpoint.com/validate-email', { email: this.email })
-        .subscribe(response => {
-          if (response.isValid) {
-            this.emailValidationMessage = 'Email is valid';
-          } else {
-            this.emailValidationMessage = 'Email is invalid';
-          }
-        }, error => {
-          console.error('Email validation failed', error);
-          this.emailValidationMessage = 'Validation failed';
-        });
-    } else {
-      this.emailValidationMessage = 'Email cannot be empty';
-    }
-  }
-
-  // Method to validate email on each input change (API call on input)
-  validateEmailOnInput(): void {
-    if (this.email) {
-      this.http.post<any>('https://your-api-endpoint.com/validate-email-live', { email: this.email })
-        .subscribe(response => {
-          if (response.isValid) {
-            this.emailValidationMessage = 'Email is valid';
-          } else {
-            this.emailValidationMessage = 'Email is invalid';
-          }
-        }, error => {
-          console.error('Email validation failed', error);
-          this.emailValidationMessage = 'Validation failed';
-        });
-    } else {
-      this.emailValidationMessage = '';
-    }
+  // Method to print the selected value in the console
+  onSelectionChange(event: any): void {
+    console.log('Selected value:', event.value);
   }
 }
 
 
+hhhh
 
-jjjj
+
+
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
+@NgModule({
+  imports: [
+    MatSelectModule,
+    MatFormFieldModule,
+    // other imports...
+  ]
+})
+export class AppModule {}
