@@ -1,51 +1,40 @@
-<mat-form-field appearance="fill">
-  <mat-label>Select an option</mat-label>
-  <mat-select [(value)]="selectedValue" (selectionChange)="onSelectionChange($event)">
-    <mat-option *ngFor="let option of options" [value]="option.value">
-      {{ option.viewValue }}
-    </mat-option>
-  </mat-select>
-</mat-form-field>
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
+public class EmployeeNames {
 
+    public static void main(String[] args) {
+        // Database connection parameters
+        String url = "jdbc:postgresql://localhost:5432/your_database"; // Update with your DB details
+        String username = "your_username";
+        String password = "your_password";
 
-hhhh
-import { Component } from '@angular/core';
+        // SQL query to select the 'name' column from the 'employee' table
+        String sql = "SELECT name FROM employee";
 
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-  // Define the options array
-  options = [
-    { value: 'option1', viewValue: 'Option 1' },
-    { value: 'option2', viewValue: 'Option 2' },
-    { value: 'option3', viewValue: 'Option 3' }
-  ];
+        // Create a Set to store the names
+        Set<String> nameSet = new HashSet<>();
 
-  selectedValue: string = '';
+        // JDBC connection and query execution
+        try (Connection conn = DriverManager.getConnection(url, username, password);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
-  // Method to print the selected value in the console
-  onSelectionChange(event: any): void {
-    console.log('Selected value:', event.value);
-  }
+            // Iterate through the result set and add names to the set
+            while (rs.next()) {
+                nameSet.add(rs.getString("name"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Output the names in the set
+        System.out.println("Names from the employee table: " + nameSet);
+    }
 }
-
-
-hhhh
-
-
-
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-
-@NgModule({
-  imports: [
-    MatSelectModule,
-    MatFormFieldModule,
-    // other imports...
-  ]
-})
-export class AppModule {}
