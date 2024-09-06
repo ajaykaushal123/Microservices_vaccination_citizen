@@ -38,3 +38,47 @@ public class EmployeeNames {
         System.out.println("Names from the employee table: " + nameSet);
     }
 }
+
+
+
+hhhh
+
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { emailValidator } from './validators/email.validator'; // Import the custom validator
+
+@Component({
+  selector: 'app-email-form',
+  templateUrl: './email-form.component.html',
+})
+export class EmailFormComponent {
+  form: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      email: ['', [Validators.required, Validators.email, emailValidator()]] // Add the custom validator
+    });
+  }
+
+  get email() {
+    return this.form.get('email');
+  }
+}
+
+
+
+hhhh
+
+<form [formGroup]="form">
+  <label for="email">Email</label>
+  <input id="email" formControlName="email" />
+
+  <!-- Error messages -->
+  <div *ngIf="email?.invalid && email?.touched">
+    <small *ngIf="email?.errors?.required">Email is required.</small>
+    <small *ngIf="email?.errors?.email">Please enter a valid email address.</small>
+    <small *ngIf="email?.errors?.numericEmail">Email local part cannot contain only numbers.</small>
+  </div>
+</form>
+
+
