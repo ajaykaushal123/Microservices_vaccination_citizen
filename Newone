@@ -1,4 +1,4 @@
-import java.sql.Connection;
+ooimport java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -81,4 +81,21 @@ hhhh
   </div>
 </form>
 
+mmmmm
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
+export function emailValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const email = control.value;
+    if (email) {
+      const [localPart] = email.split('@');
+      
+      // Check if the local part is numeric
+      const isNumeric = /^[0-9]+$/.test(localPart);
+      if (isNumeric) {
+        return { numericEmail: true }; // Return an error object if numeric-only
+      }
+    }
+    return null; // Return null if no error
+  };
+}
