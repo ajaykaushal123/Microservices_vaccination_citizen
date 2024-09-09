@@ -1,34 +1,41 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { debounceTime, switchMap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { EmailService } from './email.service';  // Service for backend API call
+@Service
+public class EmailValidationService {
 
-@Component({
-  selector: 'app-email',
-  templateUrl: './email.component.html',
-  styleUrls: ['./email.component.css']
-})
-export class EmailComponent implements OnInit {
-  emailForm: FormGroup;
+    @Autowired
+    private DomainRepository domainRepository;
 
-  constructor(private fb: FormBuilder, private emailService: EmailService) {}
+    public boolean isEmailValid(String email) {
+        String emailDomain = email.split("@")[1];
+        List<String> domains = domainRepository.findAllDomains();
 
-  ngOnInit(): void {
-    this.emailForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
-    });
+        for (String domain : domains) {
+            if (matchDomainPattern(emailDomain, domain)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    this.emailForm.get('email')?.valueChanges.pipe(
-      debounceTime(500),  // Wait for 500ms after typing stops
-      switchMap(email => this.emailService.validateEmail(email)),  // Call backend API
-      catchError(() => of(null))  // Handle any errors
-    ).subscribe(response => {
-      if (response && response.valid) {
-        // Handle valid email
-      } else {
-        // Handle invalid email
-      }
-    });
-  }
+    private boolean matchDomainPattern(String emailDomain, String domainPattern) {
+        String regexPattern = domainPattern.replace("*", ".*");
+        return emailDomain.matches(regexPattern);
+    }
+}
+
+
+vvvvb
+
+
+@RestController
+@RequestMapping("/api")
+public class EmailController {
+
+    @Autowired
+    private EmailValidationService emailValidationService;
+
+    @PostMapping("/validate-email")
+    public ResponseEntity<EmailValidationResponse> validateEmail(@RequestBody EmailRequest emailRequest) {
+        boolean isValid = emailValidationService.isEmailValid(emailRequest.getEmail());
+        return ResponseEntity.ok(new EmailValidationResponse(isValid));
+    }
 }
