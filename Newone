@@ -1,33 +1,30 @@
-@Service
-public class EmailValidationService {
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    @Autowired
-    private DomainRepository domainRepository;
+@Constraint(validatedBy = AsteriskOnlyValidator.class)
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface AsteriskOnly {
+    String message() default "The string must contain only asterisks (*)";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
 
-    public boolean isEmailValid(String email) {
-        String emailDomain = email.split("@")[1];
+dafafgsgs
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
-        // Check if the domain part of the email contains '*', which is automatically valid
-        if (emailDomain.contains("*")) {
-            return true;
+public class AsteriskOnlyValidator implements ConstraintValidator<AsteriskOnly, String> {
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (value == null || value.isEmpty()) {
+            return true;  // or return false if you don't want to allow null/empty strings
         }
-
-        // Fetch all wildcard domains from the DB
-        List<String> domains = domainRepository.findAllDomains();
-
-        // Check if the email domain matches any wildcard pattern (e.g., HDFC*)
-        for (String domain : domains) {
-            if (matchDomainPattern(emailDomain, domain)) {
-                return true;
-            }
-        }
-
-        return false;
+        return value.matches("[*]+");
     }
-
-    private boolean matchDomainPattern(String emailDomain, String domainPattern) {
-        // Replace '*' with '.*' for regex matching
-        String regexPattern = domainPattern.replace("*", ".*");
-        return emailDomain.matches(regexPattern);
-    }
-}.
+}
