@@ -6,36 +6,28 @@ public class EmailValidationService {
 
     public boolean isEmailValid(String email) {
         String emailDomain = email.split("@")[1];
+
+        // Check if the domain part of the email contains '*', which is automatically valid
+        if (emailDomain.contains("*")) {
+            return true;
+        }
+
+        // Fetch all wildcard domains from the DB
         List<String> domains = domainRepository.findAllDomains();
 
+        // Check if the email domain matches any wildcard pattern (e.g., HDFC*)
         for (String domain : domains) {
             if (matchDomainPattern(emailDomain, domain)) {
                 return true;
             }
         }
+
         return false;
     }
 
     private boolean matchDomainPattern(String emailDomain, String domainPattern) {
+        // Replace '*' with '.*' for regex matching
         String regexPattern = domainPattern.replace("*", ".*");
         return emailDomain.matches(regexPattern);
     }
-}
-
-
-vvvvb
-
-
-@RestController
-@RequestMapping("/api")
-public class EmailController {
-
-    @Autowired
-    private EmailValidationService emailValidationService;
-
-    @PostMapping("/validate-email")
-    public ResponseEntity<EmailValidationResponse> validateEmail(@RequestBody EmailRequest emailRequest) {
-        boolean isValid = emailValidationService.isEmailValid(emailRequest.getEmail());
-        return ResponseEntity.ok(new EmailValidationResponse(isValid));
-    }
-}
+}.
