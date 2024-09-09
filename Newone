@@ -1,101 +1,34 @@
-ooimport java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
-
-public class EmployeeNames {
-
-    public static void main(String[] args) {
-        // Database connection parameters
-        String url = "jdbc:postgresql://localhost:5432/your_database"; // Update with your DB details
-        String username = "your_username";
-        String password = "your_password";
-
-        // SQL query to select the 'name' column from the 'employee' table
-        String sql = "SELECT name FROM employee";
-
-        // Create a Set to store the names
-        Set<String> nameSet = new HashSet<>();
-
-        // JDBC connection and query execution
-        try (Connection conn = DriverManager.getConnection(url, username, password);
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            // Iterate through the result set and add names to the set
-            while (rs.next()) {
-                nameSet.add(rs.getString("name"));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        // Output the names in the set
-        System.out.println("Names from the employee table: " + nameSet);
-    }
-}
-
-
-
-hhhh
-
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { emailValidator } from './validators/email.validator'; // Import the custom validator
+import { debounceTime, switchMap, catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { EmailService } from './email.service';  // Service for backend API call
 
 @Component({
-  selector: 'app-email-form',
-  templateUrl: './email-form.component.html',
+  selector: 'app-email',
+  templateUrl: './email.component.html',
+  styleUrls: ['./email.component.css']
 })
-export class EmailFormComponent {
-  form: FormGroup;
+export class EmailComponent implements OnInit {
+  emailForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email, emailValidator()]] // Add the custom validator
+  constructor(private fb: FormBuilder, private emailService: EmailService) {}
+
+  ngOnInit(): void {
+    this.emailForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
+
+    this.emailForm.get('email')?.valueChanges.pipe(
+      debounceTime(500),  // Wait for 500ms after typing stops
+      switchMap(email => this.emailService.validateEmail(email)),  // Call backend API
+      catchError(() => of(null))  // Handle any errors
+    ).subscribe(response => {
+      if (response && response.valid) {
+        // Handle valid email
+      } else {
+        // Handle invalid email
+      }
     });
   }
-
-  get email() {
-    return this.form.get('email');
-  }
-}
-
-
-
-hhhh
-
-<form [formGroup]="form">
-  <label for="email">Email</label>
-  <input id="email" formControlName="email" />
-
-  <!-- Error messages -->
-  <div *ngIf="email?.invalid && email?.touched">
-    <small *ngIf="email?.errors?.required">Email is required.</small>
-    <small *ngIf="email?.errors?.email">Please enter a valid email address.</small>
-    <small *ngIf="email?.errors?.numericEmail">Email local part cannot contain only numbers.</small>
-  </div>
-</form>
-
-mmmmm
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-
-export function emailValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const email = control.value;
-    if (email) {
-      const [localPart] = email.split('@');
-      
-      // Check if the local part is numeric
-      const isNumeric = /^[0-9]+$/.test(localPart);
-      if (isNumeric) {
-        return { numericEmail: true }; // Return an error object if numeric-only
-      }
-    }
-    return null; // Return null if no error
-  };
 }
