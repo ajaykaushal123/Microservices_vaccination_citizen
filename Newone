@@ -1,22 +1,37 @@
-@Service
-public class EmailValidationService {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form 2</title>
+</head>
+<body>
+  <form id="form2">
+    <label for="name">Name:</label>
+    <input type="text" id="name2" name="name"><br><br>
 
-    @Autowired
-    private MemberLookupRepository memberLookupRepository;
+    <label for="email">Email:</label>
+    <input type="email" id="email2" name="email"><br><br>
 
-    public boolean isEmailValid(String email, String userId) {
-        // Extract the domain part of the email
-        String emailDomain = email.split("@")[1];
+    <button type="submit">Submit</button>
+  </form>
 
-        // Check if the domain contains a wildcard '*'
-        if (emailDomain.contains("*")) {
-            // Case 2: Domain contains a wildcard '*'
-            // Replace the '*' with SQL '%' for pattern matching
-            return memberLookupRepository.findByWildcardDomain(userId, emailDomain).isPresent();
-        } else {
-            // Case 1: Domain does not contain a wildcard '*'
-            // Perform an exact match query
-            return memberLookupRepository.findByExactDomain(userId, emailDomain).isPresent();
-        }
+  <script>
+    // Function to extract URL parameters
+    function getUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        name: params.get('name'),
+        email: params.get('email')
+      };
     }
-}
+
+    // Populate form fields with the extracted parameters
+    window.onload = function() {
+      const params = getUrlParams();
+      document.getElementById('name2').value = params.name || '';
+      document.getElementById('email2').value = params.email || '';
+    };
+  </script>
+</body>
+</html>
