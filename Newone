@@ -1,30 +1,22 @@
-import javax.validation.Constraint;
-import javax.validation.Payload;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+@Service
+public class EmailValidationService {
 
-@Constraint(validatedBy = AsteriskOnlyValidator.class)
-@Target({ ElementType.FIELD, ElementType.PARAMETER })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface AsteriskOnly {
-    String message() default "The string must contain only asterisks (*)";
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
-}
+    @Autowired
+    private MemberLookupRepository memberLookupRepository;
 
-dafafgsgs
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+    public boolean isEmailValid(String email, String userId) {
+        // Extract the domain part of the email
+        String emailDomain = email.split("@")[1];
 
-public class AsteriskOnlyValidator implements ConstraintValidator<AsteriskOnly, String> {
-
-    @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null || value.isEmpty()) {
-            return true;  // or return false if you don't want to allow null/empty strings
+        // Check if the domain contains a wildcard '*'
+        if (emailDomain.contains("*")) {
+            // Case 2: Domain contains a wildcard '*'
+            // Replace the '*' with SQL '%' for pattern matching
+            return memberLookupRepository.findByWildcardDomain(userId, emailDomain).isPresent();
+        } else {
+            // Case 1: Domain does not contain a wildcard '*'
+            // Perform an exact match query
+            return memberLookupRepository.findByExactDomain(userId, emailDomain).isPresent();
         }
-        return value.matches("[*]+");
     }
 }
