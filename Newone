@@ -1,10 +1,8 @@
-SELECT
-    SUBSTRING_INDEX(email_domain, ',', 1) AS email_domain_1,
-    SUBSTRING_INDEX(SUBSTRING_INDEX(email_domain, ',', 2), ',', -1) AS email_domain_2,
-    -- Add more SUBSTRING_INDEX expressions for additional comma-separated values if needed
-    replace(email_domain_1, '*', '%') AS email_domain_1_wildcard,
-    replace(email_domain_2, '*', '%') AS email_domain_2_wildcard
-FROM sso_member_lookup
-WHERE
-    member_base = SUBSTRING('BP03080011_COMM1', 0, 7)
-    AND ('Hdfc.com' LIKE email_domain_1_wildcard OR 'Hdfc.com' LIKE email_domain_2_wildcard);
+SELECT 
+    SUBSTRING_INDEX(email_domain, ',', 1) AS email_domain,
+    REPLACE(email_domain, ',', '%') AS email_like
+FROM 
+    sso_member_lookup
+WHERE 
+    member_base = SUBSTRING('BP03080011 COMM1', 1, 7)
+    AND 'Hdfc.com' LIKE REPLACE(email_domain, ',', '%');
