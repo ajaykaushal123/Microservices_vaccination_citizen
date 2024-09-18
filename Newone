@@ -1,53 +1,45 @@
-SELECT EXISTS (
-    SELECT 1
-    FROM employee
-    WHERE name = ? AND address = ? AND number = ?
-) AS employee_exists;
+# General messages
+hello.world=Hello, world!
+welcome.message=Welcome to our application.
+
+# Error messages
+invalid.email=Invalid email address.
+required.field=This field is required.
+
+# Custom messages
+greeting.user=Hello, {0}!
 
 
 
-hahsh
+xyz
+package com.example.myapp;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.*;
+import java.util.Locale;
 
-public class EmployeeExistenceCheck {
-    public static void main(String[] args) {
-        try {
-            // Replace with your database connection details
-            Connection conn = DriverManager.getConnection("jdbc:your_url", "your_username", "your_password");
+@RestController
+public class MyController {
 
-            // Prepared statement
-            String sql = "SELECT EXISTS (SELECT 1 FROM employee WHERE name = ? AND address = ? AND number = ?) AS employee_exists";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+    @Autowired
+    private MessageSource messageSource;
 
-            // Set values for parameters
-            String name = "John Doe";
-            String address = "123 Main St";
-            int number = 123456;
-            pstmt.setString(1, name);
-            pstmt.setString(2, address);
-            pstmt.setInt(3, number);
+    @GetMapping("/hello")
+    public String hello() {
+        return messageSource.getMessage("hello.world", null, Locale.getDefault());
+    }
 
-            // Execute query
-            ResultSet rs = pstmt.executeQuery();
-
-            // Check if employee exists
-            if (rs.next()) {
-                boolean exists = rs.getBoolean("employee_exists");
-                if (exists) {
-                    System.out.println("Employee exists.");
-                } else {
-                    System.out.println("Employee does not exist.");
-                }
-            }
-
-            // Close resources
-            rs.close();
-            pstmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    @GetMapping("/welcome/{name}")
+    public String welcome(@PathVariable String name) {
+        Object[] args = {name};
+        return messageSource.getMessage("greeting.user", args, Locale.getDefault());
     }
 }
+
+xyz
+
+spring.messages.basename=classpath:message
