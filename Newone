@@ -1,45 +1,10 @@
-# General messages
-hello.world=Hello, world!
-welcome.message=Welcome to our application.
-
-# Error messages
-invalid.email=Invalid email address.
-required.field=This field is required.
-
-# Custom messages
-greeting.user=Hello, {0}!
-
-
-
-xyz
-package com.example.myapp;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Locale;
-
-@RestController
-public class MyController {
-
-    @Autowired
-    private MessageSource messageSource;
-
-    @GetMapping("/hello")
-    public String hello() {
-        return messageSource.getMessage("hello.world", null, Locale.getDefault());
-    }
-
-    @GetMapping("/welcome/{name}")
-    public String welcome(@PathVariable String name) {
-        Object[] args = {name};
-        return messageSource.getMessage("greeting.user", args, Locale.getDefault());
-    }
-}
-
-xyz
-
-spring.messages.basename=classpath:message
+SELECT
+    SUBSTRING_INDEX(email_domain, ',', 1) AS email_domain_1,
+    SUBSTRING_INDEX(SUBSTRING_INDEX(email_domain, ',', 2), ',', -1) AS email_domain_2,
+    -- Add more SUBSTRING_INDEX expressions for additional comma-separated values if needed
+    replace(email_domain_1, '*', '%') AS email_domain_1_wildcard,
+    replace(email_domain_2, '*', '%') AS email_domain_2_wildcard
+FROM sso_member_lookup
+WHERE
+    member_base = SUBSTRING('BP03080011_COMM1', 0, 7)
+    AND ('Hdfc.com' LIKE email_domain_1_wildcard OR 'Hdfc.com' LIKE email_domain_2_wildcard);
