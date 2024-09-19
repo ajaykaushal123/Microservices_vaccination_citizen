@@ -1,8 +1,49 @@
-SELECT 
-    SUBSTRING_INDEX(email_domain, ',', 1) AS email_domain,
-    REPLACE(email_domain, ',', '%') AS email_like
-FROM 
-    sso_member_lookup
-WHERE 
-    member_base = SUBSTRING('BP03080011 COMM1', 1, 7)
-    AND 'Hdfc.com' LIKE REPLACE(email_domain, ',', '%');
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+@Component({
+  selector: 'app-your-component',
+  templateUrl: './your-component.html',
+  styleUrls: ['./your-component.css']
+})
+export class YourComponent implements OnInit {
+  form: FormGroup;
+  showOtpFields = false;
+
+  constructor(private fb: FormBuilder) {}
+
+  ngOnInit() {
+    this.form = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      mobileNumber: ['', Validators.required],
+      email: ['', Validators.required, Validators.email],
+      mobileOtp: ['', Validators.required],
+      emailOtp: ['', Validators.required]
+    });
+  }
+
+  onSubmit() {
+    if (this.form.valid) {
+      // Proceed with form submission
+      this.showOtpFields = true;
+      this.form.controls.firstName.disable();
+      this.form.controls.lastName.disable();
+      this.form.controls.mobileNumber.disable();
+      this.form.controls.email.disable();
+    }
+  }
+}
+
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-form-field appearance="fill">
+    <mat-label>First Name</mat-label>
+    <input matInput formControlName="firstName">
+  </mat-form-field>
+  <div *ngIf="showOtpFields">
+    </div>
+
+  <button mat-raised-button color="primary" type="submit" *ngIf="!showOtpFields">Proceed</button>
+  <button mat-raised-button color="primary" type="submit" *ngIf="showOtpFields">Confirm</button>
+</form>
