@@ -1,49 +1,29 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-your-component',
-  templateUrl: './your-component.html',
-  styleUrls: ['./your-component.css']
+  selector: 'app-product',
+  templateUrl: './product.component.html',
+  styleUrls: ['./product.component.css']
 })
-export class YourComponent implements OnInit {
-  form: FormGroup;
-  showOtpFields = false;
+export class ProductComponent implements OnInit {
 
-  constructor(private fb: FormBuilder) {}
+  productId: string | null = '';
+  category: string | null = '';
 
-  ngOnInit() {
-    this.form = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      mobileNumber: ['', Validators.required],
-      email: ['', Validators.required, Validators.email],
-      mobileOtp: ['', Validators.required],
-      emailOtp: ['', Validators.required]
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    // Get route parameter (product ID)
+    this.route.paramMap.subscribe(params => {
+      this.productId = params.get('id');
+      console.log('Product ID:', this.productId);  // Example: 123
+    });
+
+    // Get query parameter (category)
+    this.route.queryParamMap.subscribe(queryParams => {
+      this.category = queryParams.get('category');
+      console.log('Category:', this.category);  // Example: books
     });
   }
-
-  onSubmit() {
-    if (this.form.valid) {
-      // Proceed with form submission
-      this.showOtpFields = true;
-      this.form.controls.firstName.disable();
-      this.form.controls.lastName.disable();
-      this.form.controls.mobileNumber.disable();
-      this.form.controls.email.disable();
-    }
-  }
 }
-
-
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <mat-form-field appearance="fill">
-    <mat-label>First Name</mat-label>
-    <input matInput formControlName="firstName">
-  </mat-form-field>
-  <div *ngIf="showOtpFields">
-    </div>
-
-  <button mat-raised-button color="primary" type="submit" *ngIf="!showOtpFields">Proceed</button>
-  <button mat-raised-button color="primary" type="submit" *ngIf="showOtpFields">Confirm</button>
-</form>
