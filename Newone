@@ -1,29 +1,21 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import java.sql.*;
 
-@Component({
-  selector: 'app-product',
-  templateUrl: './product.component.html',
-  styleUrls: ['./product.component.css']
-})
-export class ProductComponent implements OnInit {
+public class StringChecker {
+    public static boolean checkStrings(String emailId, String applicationName, Connection connection) throws SQLException {
+        String query = "SELECT COUNT(*) FROM your_table WHERE email_id = ? AND application_name = ?";
 
-  productId: string | null = '';
-  category: string | null = '';
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, emailId);
+            preparedStatement.setString(2, applicationName);
 
-  constructor(private route: ActivatedRoute) {}
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    int count = resultSet.getInt(1);
+                    return count > 0;
+                }
+            }
+        }
 
-  ngOnInit(): void {
-    // Get route parameter (product ID)
-    this.route.paramMap.subscribe(params => {
-      this.productId = params.get('id');
-      console.log('Product ID:', this.productId);  // Example: 123
-    });
-
-    // Get query parameter (category)
-    this.route.queryParamMap.subscribe(queryParams => {
-      this.category = queryParams.get('category');
-      console.log('Category:', this.category);  // Example: books
-    });
-  }
+        return false;
+    }
 }
