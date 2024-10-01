@@ -1,21 +1,39 @@
 import java.sql.*;
 
-public class StringChecker {
-    public static boolean checkStrings(String emailId, String applicationName, Connection connection) throws SQLException {
-        String query = "SELECT COUNT(*) FROM your_table WHERE email_id = ? AND application_name = ?";
+public class DatabaseChecker {
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, emailId);
-            preparedStatement.setString(2, applicationName);
+    public static boolean checkStringValuesInTable(String value1, String value2, String tableName, String column1, String column2) {
+        boolean isPresent = false;
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    int count = resultSet.getInt(1);
-                    return count > 0;
-                }
+        try {
+            // Replace with your database connection details
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/your_database", "your_username", "your_password");
+
+            // Create a prepared statement to prevent SQL injection
+            String query = "SELECT " + column1 + ", " + column2 + " FROM " + tableName + " WHERE " + column1 + " = ? AND " + column2 + " = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+
+            // Set the parameters
+            preparedStatement.setString(1, value1);
+            preparedStatement.setString(2, value2);
+
+            // Execute the query
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            // Check if the result set contains a row (count > 0)
+            if (resultSet.next()) {
+                isPresent = true;
             }
+
+            // Close resources
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
         }
 
-        return false;
+        return isPresent;
     }
 }
