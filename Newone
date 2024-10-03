@@ -1,23 +1,37 @@
-@RestController
-@RequestMapping("/api")
-public class TokenController {
+h
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class TokenService {
 
     @Autowired
-    private TokenService tokenService;
+    private RestTemplate restTemplate;
 
-    @PostMapping("/token")
-    public ResponseEntity<String> getToken(@RequestBody LoginRequest loginRequest) {
-        // Authenticate the user (e.g., check credentials against a database)
-        if (authenticateUser(loginRequest.getUsername(), loginRequest.getPassword())) {
-            String token = tokenService.generateToken(loginRequest.getUsername());
-            return ResponseEntity.ok(token);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-    }
+    public String getToken(String username, String password) {
+        // External API URL
+        String url = "https://api.example.com/generate-token";
 
-    private boolean authenticateUser(String username, String password) {
-        // Implement your authentication logic here (e.g., database lookup)
-        return true; // Replace with actual authentication
+        // Set up headers with Basic Authentication
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        
+        // Encode username and password for Basic Auth
+        String auth = username + ":" + password;
+        String encodedAuth = Base64Utils.encodeToString(auth.getBytes());
+        headers.set("Authorization", "Basic " + encodedAuth);
+
+        // Make the API request
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+
+        // Return the token from the response
+        return response.getBody();
     }
 }
