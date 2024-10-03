@@ -1,39 +1,23 @@
-import java.sql.*;
+@RestController
+@RequestMapping("/api")
+public class TokenController {
 
-public class DatabaseChecker {
+    @Autowired
+    private TokenService tokenService;
 
-    public static boolean checkStringValuesInTable(String value1, String value2, String tableName, String column1, String column2) {
-        boolean isPresent = false;
-
-        try {
-            // Replace with your database connection details
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/your_database", "your_username", "your_password");
-
-            // Create a prepared statement to prevent SQL injection
-            String query = "SELECT " + column1 + ", " + column2 + " FROM " + tableName + " WHERE " + column1 + " = ? AND " + column2 + " = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-
-            // Set the parameters
-            preparedStatement.setString(1, value1);
-            preparedStatement.setString(2, value2);
-
-            // Execute the query
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            // Check if the result set contains a row (count > 0)
-            if (resultSet.next()) {
-                isPresent = true;
-            }
-
-            // Close resources
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+    @PostMapping("/token")
+    public ResponseEntity<String> getToken(@RequestBody LoginRequest loginRequest) {
+        // Authenticate the user (e.g., check credentials against a database)
+        if (authenticateUser(loginRequest.getUsername(), loginRequest.getPassword())) {
+            String token = tokenService.generateToken(loginRequest.getUsername());
+            return ResponseEntity.ok(token);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+    }
 
-        return isPresent;
+    private boolean authenticateUser(String username, String password) {
+        // Implement your authentication logic here (e.g., database lookup)
+        return true; // Replace with actual authentication
     }
 }
