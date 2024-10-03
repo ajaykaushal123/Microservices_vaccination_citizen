@@ -1,32 +1,49 @@
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import java.util.Map;
 
-public class TokenService {
+public class ApiService {
 
-    public String getAccessToken() {
-        String url = "https://example.com/oauth/token"; // Replace with your API URL
+    public String callGetApi(String accessToken) {
+        String url = "https://example.com/protected-resource"; // Replace with the API URL
         RestTemplate restTemplate = new RestTemplate();
 
-        // Request body with the necessary parameters
+        // Set up the headers with the Bearer token
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBasicAuth("client_id", "client_secret"); // Replace with your credentials
-        
-        String requestBody = "{\"username\":\"your-username\",\"password\":\"your-password\",\"grant_type\":\"password\"}";
+        headers.setBearerAuth(accessToken); // Set the Authorization header with Bearer token
 
-        // Create the request entity
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        // Create the request entity with the headers
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
-        // Send POST request
-        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Map.class);
+        // Call the API using the GET method
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
 
-        // Extract the access_token from the response body
-        Map<String, Object> responseBody = response.getBody();
-        if (responseBody != null && responseBody.containsKey("access_token")) {
-            return responseBody.get("access_token").toString();
-        }
-
-        return null;
+        // Return the response body
+        return response.getBody();
     }
 }
+
+
+lllllhhj
+
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+public class ApiService {
+
+    private final WebClient webClient = WebClient.create();
+
+    public String callGetApi(String accessToken) {
+        String url = "https://example.com/protected-resource"; // Replace with the API URL
+
+        // Call the API with the Authorization Bearer token
+        Mono<String> response = webClient.get()
+                .uri(url)
+                .headers(headers -> headers.setBearerAuth(accessToken)) // Set the Authorization header with Bearer token
+                .retrieve()
+                .bodyToMono(String.class);
+
+        // Return the response body (blocking call for simplicity)
+        return response.block();
+    }
+}
+
