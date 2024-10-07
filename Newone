@@ -1,110 +1,50 @@
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit JSON to API</title>
+</head>
+<body>
+    <form id="myForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name"><br><br>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email"><br><br>
+        
+        <button type="submit">Submit</button>
+    </form>
 
-@Service
-public class UserService {
+    <script>
+        document.getElementById('myForm').addEventListener('submit', function (event) {
+            event.preventDefault();
 
-    private final RestTemplate restTemplate;
+            // Collect form data
+            const formData = new FormData(this);
 
-    public UserService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+            // Convert form data to JSON object
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
 
-    public ResponseEntity<String> createUser(UserRequest userRequest) {
-        String url = "https://your-api-url.com/users";  // Use the correct API URL
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-
-        HttpEntity<UserRequest> request = new HttpEntity<>(userRequest, headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-            url,
-            HttpMethod.POST,
-            request,
-            String.class
-        );
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return response;  // API call successful
-        } else {
-            throw new RuntimeException("Failed to create user");
-        }
-    }
-}
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserRequest {
-    private User users;
-
-    // Getters and Setters
-
-    public static class User {
-        private String subject;
-        private String credentials;
-        private String description;
-        private boolean active;
-        private String company;
-        private Name name;
-        private Phone phone;
-        private Email email;
-
-        // Getters and Setters
-
-        public static class Name {
-            private String title;
-            private String prefix;
-            private String firstName;
-            private String middleName;
-            private String surName;
-            private String secondSurName;
-            private String fullName;
-
-            // Getters and Setters
-        }
-
-        public static class Phone {
-            private String phoneNumber;
-
-            // Getters and Setters
-        }
-
-        public static class Email {
-            private String emailAddress;
-
-            // Getters and Setters
-        }
-    }
-}
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-public class UserController {
-
-    private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-    @PostMapping("/create-user")
-    public ResponseEntity<String> createUser(@RequestBody UserRequest userRequest) {
-        return userService.createUser(userRequest);
-    }
-}
-
-
-
+            // Send the JSON object to the Spring Boot API
+            fetch('http://localhost:8080/api/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
