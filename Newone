@@ -1,50 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit JSON to API</title>
-</head>
-<body>
-    <form id="myForm">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name"><br><br>
-        
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email"><br><br>
-        
-        <button type="submit">Submit</button>
-    </form>
+import org.apache.hc.client5.http.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.ssl.TrustStrategy;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
-    <script>
-        document.getElementById('myForm').addEventListener('submit', function (event) {
-            event.preventDefault();
+import javax.net.ssl.SSLContext;
 
-            // Collect form data
-            const formData = new FormData(this);
+public class HttpClientConfig {
 
-            // Convert form data to JSON object
-            const jsonData = {};
-            formData.forEach((value, key) => {
-                jsonData[key] = value;
-            });
+    public RestTemplate restTemplate() throws Exception {
+        // Create an SSL context that accepts all certificates (for example purposes only)
+        SSLContext sslContext = SSLContextBuilder.create()
+                .loadTrustMaterial(new TrustStrategy() {
+                    @Override
+                    public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                        return true;
+                    }
+                }).build();
 
-            // Send the JSON object to the Spring Boot API
-            fetch('http://localhost:8080/api/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(jsonData),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
-    </script>
-</body>
-</html>
+        // Create SSLConnectionSocketFactory with the SSL context
+        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
+
+        // Create CloseableHttpClient and set the socket factory
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(socketFactory)
+                .build();
+
+        // Create request factory with the HttpClient
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+
+        // Return RestTemplate with the custom request factory
+        return new RestTemplate(requestFactory);
+    }
+}
