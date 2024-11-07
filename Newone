@@ -1,98 +1,24 @@
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "Envelope", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
-public class SoapEnvelope {
-    private SoapBody body;
+public class ServiceError {
+    private String errCode;
+    private String errMsg;
 
-    @XmlElement(name = "Body", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
-    public SoapBody getBody() {
-        return body;
+    @XmlElement(name = "errCode")
+    public String getErrCode() {
+        return errCode;
     }
 
-    public void setBody(SoapBody body) {
-        this.body = body;
-    }
-}
-
-
-
-
-2nd
-import javax.xml.bind.annotation.XmlElement;
-
-public class SoapBody {
-    private DoUserManagementResponse doUserManagementResponse;
-
-    @XmlElement(name = "doUserManagementResponse", namespace = "http://service.fraud.datamaintenance.tuc.com")
-    public DoUserManagementResponse getDoUserManagementResponse() {
-        return doUserManagementResponse;
+    public void setErrCode(String errCode) {
+        this.errCode = errCode;
     }
 
-    public void setDoUserManagementResponse(DoUserManagementResponse doUserManagementResponse) {
-        this.doUserManagementResponse = doUserManagementResponse;
+    @XmlElement(name = "errMsg")
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
     }
 }
-
-
-3rd
-import javax.xml.bind.annotation.XmlElement;
-
-public class DoUserManagementResponse {
-    private Response response;
-
-    @XmlElement(name = "return", namespace = "http://service.fraud.datamaintenance.tuc.com")
-    public Response getResponse() {
-        return response;
-    }
-
-    public void setResponse(Response response) {
-        this.response = response;
-    }
-}
-
-
-4th
-import javax.xml.bind.annotation.XmlElement;
-
-public class Response {
-    private boolean hasError;
-    private ServiceError serviceError;
-
-    @XmlElement(name = "hasError")
-    public boolean isHasError() {
-        return hasError;
-    }
-
-    public void setHasError(boolean hasError) {
-        this.hasError = hasError;
-    }
-
-    @XmlElement(name = "serviceError")
-    public ServiceError getServiceError() {
-        return serviceError;
-    }
-
-    public void setServiceError(ServiceError serviceError) {
-        this.serviceError = serviceError;
-    }
-}
-
-5th
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-@Service
-public class SoapService {
-
-    @Autowired
-    private RestTemplate restTemplate;
-
-    public Response callSoapService(String url) {
-        SoapEnvelope envelope = restTemplate.getForObject(url, SoapEnvelope.class);
-        return envelope.getBody().getDoUserManagementResponse().getResponse();
-    }
-}
-
-
