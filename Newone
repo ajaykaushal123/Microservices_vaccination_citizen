@@ -1,24 +1,15 @@
-import javax.xml.bind.annotation.XmlElement;
-
-public class ServiceError {
-    private String errCode;
-    private String errMsg;
-
-    @XmlElement(name = "errCode")
-    public String getErrCode() {
-        return errCode;
-    }
-
-    public void setErrCode(String errCode) {
-        this.errCode = errCode;
-    }
-
-    @XmlElement(name = "errMsg")
-    public String getErrMsg() {
-        return errMsg;
-    }
-
-    public void setErrMsg(String errMsg) {
-        this.errMsg = errMsg;
-    }
-}
+<dependency>
+    <groupId>javax.xml.bind</groupId>
+    <artifactId>jaxb-api</artifactId>
+    <version>2.3.1</version>
+</dependency>
+<dependency>
+    <groupId>org.glassfish.jaxb</groupId>
+    <artifactId>jaxb-runtime</artifactId>
+    <version>2.3.1</version>
+</dependency>
+<dependency>
+    <groupId>javax.activation</groupId>
+    <artifactId>activation</artifactId>
+    <version>1.1.1</version>
+</dependency>
