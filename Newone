@@ -1,37 +1,98 @@
-import org.apache.hc.client5.http.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
-import org.apache.hc.core5.ssl.TrustStrategy;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import javax.net.ssl.SSLContext;
+@XmlRootElement(name = "Envelope", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+public class SoapEnvelope {
+    private SoapBody body;
 
-public class HttpClientConfig {
+    @XmlElement(name = "Body", namespace = "http://schemas.xmlsoap.org/soap/envelope/")
+    public SoapBody getBody() {
+        return body;
+    }
 
-    public RestTemplate restTemplate() throws Exception {
-        // Create an SSL context that accepts all certificates (for example purposes only)
-        SSLContext sslContext = SSLContextBuilder.create()
-                .loadTrustMaterial(new TrustStrategy() {
-                    @Override
-                    public boolean isTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                        return true;
-                    }
-                }).build();
-
-        // Create SSLConnectionSocketFactory with the SSL context
-        SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
-
-        // Create CloseableHttpClient and set the socket factory
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLSocketFactory(socketFactory)
-                .build();
-
-        // Create request factory with the HttpClient
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-
-        // Return RestTemplate with the custom request factory
-        return new RestTemplate(requestFactory);
+    public void setBody(SoapBody body) {
+        this.body = body;
     }
 }
+
+
+
+
+2nd
+import javax.xml.bind.annotation.XmlElement;
+
+public class SoapBody {
+    private DoUserManagementResponse doUserManagementResponse;
+
+    @XmlElement(name = "doUserManagementResponse", namespace = "http://service.fraud.datamaintenance.tuc.com")
+    public DoUserManagementResponse getDoUserManagementResponse() {
+        return doUserManagementResponse;
+    }
+
+    public void setDoUserManagementResponse(DoUserManagementResponse doUserManagementResponse) {
+        this.doUserManagementResponse = doUserManagementResponse;
+    }
+}
+
+
+3rd
+import javax.xml.bind.annotation.XmlElement;
+
+public class DoUserManagementResponse {
+    private Response response;
+
+    @XmlElement(name = "return", namespace = "http://service.fraud.datamaintenance.tuc.com")
+    public Response getResponse() {
+        return response;
+    }
+
+    public void setResponse(Response response) {
+        this.response = response;
+    }
+}
+
+
+4th
+import javax.xml.bind.annotation.XmlElement;
+
+public class Response {
+    private boolean hasError;
+    private ServiceError serviceError;
+
+    @XmlElement(name = "hasError")
+    public boolean isHasError() {
+        return hasError;
+    }
+
+    public void setHasError(boolean hasError) {
+        this.hasError = hasError;
+    }
+
+    @XmlElement(name = "serviceError")
+    public ServiceError getServiceError() {
+        return serviceError;
+    }
+
+    public void setServiceError(ServiceError serviceError) {
+        this.serviceError = serviceError;
+    }
+}
+
+5th
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+public class SoapService {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public Response callSoapService(String url) {
+        SoapEnvelope envelope = restTemplate.getForObject(url, SoapEnvelope.class);
+        return envelope.getBody().getDoUserManagementResponse().getResponse();
+    }
+}
+
+
