@@ -1,14 +1,4 @@
-@GetMapping("/processRedirect")
-public ResponseEntity<String> processRedirect(@RequestHeader(value = "Uniqueid", required = false) String uniqueId,
-                                              @RequestHeader(value = "Userid", required = false) String userId,
-                                              @RequestHeader(value = "appCode", required = false) String appCode) {
-    System.out.println("Received Uniqueid: " + uniqueId);
-    System.out.println("Received Userid: " + userId);
-    System.out.println("Received appCode: " + appCode);
-
-    if (uniqueId == null || userId == null || appCode == null) {
-        return ResponseEntity.badRequest().body("One or more headers are missing");
-    }
-
-    return ResponseEntity.ok("Headers received and processed successfully");
-}
+curl -X GET "http://localhost:8080/api/processRedirect" \
+     -H "Uniqueid: 12345" \
+     -H "Userid: user001" \
+     -H "appCode: APP001"
