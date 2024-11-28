@@ -1,4 +1,17 @@
-curl -X GET "http://localhost:8080/api/processRedirect" \
-     -H "Uniqueid: 12345" \
-     -H "Userid: user001" \
-     -H "appCode: APP001"
+@Repository
+public interface SsoMemberLookupRepository extends JpaRepository<SsoMemberLookup, Long> {
+
+    /**
+     * Fetches all email domains associated with a given member base.
+     */
+    @Query("SELECT s.emailDomain FROM SsoMemberLookup s WHERE s.memberBase LIKE CONCAT(SUBSTRING(:memberBase, 1, 7), '%')")
+    List<String> findDomainsByMemberBase(@Param("memberBase") String memberBase);
+
+    /**
+     * Checks if an email domain exists for the given member base.
+     */
+    @Query("SELECT COUNT(s) > 0 FROM SsoMemberLookup s " +
+           "WHERE s.memberBase LIKE CONCAT(SUBSTRING(:memberBase, 1, 7), '%') " +
+           "AND :emailDomain IN FUNCTION('SPLIT_STRING', s.emailDomain, ',')")
+    boolean existsByEmailDomainAndMemberBase(@Param("emailDomain") String emailDomain, @Param("memberBase") String memberBase);
+}
