@@ -1,17 +1,25 @@
-@Repository
-public interface SsoMemberLookupRepository extends JpaRepository<SsoMemberLookup, Long> {
+@Service
+public class SsoMemberService {
+
+    @Autowired
+    private SsoMemberLookupRepository repository;
 
     /**
-     * Fetches all email domains associated with a given member base.
+     * Checks if the provided email is valid for a given member base.
      */
-    @Query("SELECT s.emailDomain FROM SsoMemberLookup s WHERE s.memberBase LIKE CONCAT(SUBSTRING(:memberBase, 1, 7), '%')")
-    List<String> findDomainsByMemberBase(@Param("memberBase") String memberBase);
+    public Boolean emailIdDomain(String email) {
+        // Validate email input
+        if (email == null || !email.contains("@")) {
+            return false;
+        }
 
-    /**
-     * Checks if an email domain exists for the given member base.
-     */
-    @Query("SELECT COUNT(s) > 0 FROM SsoMemberLookup s " +
-           "WHERE s.memberBase LIKE CONCAT(SUBSTRING(:memberBase, 1, 7), '%') " +
-           "AND :emailDomain IN FUNCTION('SPLIT_STRING', s.emailDomain, ',')")
-    boolean existsByEmailDomainAndMemberBase(@Param("emailDomain") String emailDomain, @Param("memberBase") String memberBase);
+        // Extract email domain
+        String emailDomain = email.split("@")[1];
+
+        // Define the member base
+        String memberBase = "BP03080011 COMMI";
+
+        // Check if the email domain exists for the given member base
+        return repository.existsByEmailDomainAndMemberBase(emailDomain, memberBase);
+    }
 }
