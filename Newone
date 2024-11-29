@@ -1,9 +1,14 @@
 @Repository
 public interface T1Repository extends JpaRepository<T1, Long> {
 
-    @Query("SELECT COUNT(t) > 0 FROM T1 t " +
-           "WHERE t.memberbase = :memberbase " +
-           "AND (:emailDomain LIKE REPLACE(t.domain, '*', '%'))")
+    @Query(value = "SELECT COUNT(*) > 0 " +
+                   "FROM t1 t " +
+                   "WHERE t.memberbase = :memberbase " +
+                   "AND EXISTS (" +
+                   "  SELECT 1 FROM unnest(string_to_array(t.domain, ',')) AS split_domain " +
+                   "  WHERE :emailDomain LIKE REPLACE(split_domain, '*', '%')" +
+                   ")",
+           nativeQuery = true)
     boolean existsDomainForMemberBase(
             @Param("memberbase") String memberbase,
             @Param("emailDomain") String emailDomain);
