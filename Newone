@@ -1,25 +1,10 @@
-@Service
-public class SsoMemberService {
+@Repository
+public interface T1Repository extends JpaRepository<T1, Long> {
 
-    @Autowired
-    private SsoMemberLookupRepository repository;
-
-    /**
-     * Checks if the provided email is valid for a given member base.
-     */
-    public Boolean emailIdDomain(String email) {
-        // Validate email input
-        if (email == null || !email.contains("@")) {
-            return false;
-        }
-
-        // Extract email domain
-        String emailDomain = email.split("@")[1];
-
-        // Define the member base
-        String memberBase = "BP03080011 COMMI";
-
-        // Check if the email domain exists for the given member base
-        return repository.existsByEmailDomainAndMemberBase(emailDomain, memberBase);
-    }
+    @Query("SELECT COUNT(t) > 0 FROM T1 t " +
+           "WHERE t.memberbase = :memberbase " +
+           "AND (:emailDomain LIKE REPLACE(t.domain, '*', '%'))")
+    boolean existsDomainForMemberBase(
+            @Param("memberbase") String memberbase,
+            @Param("emailDomain") String emailDomain);
 }
