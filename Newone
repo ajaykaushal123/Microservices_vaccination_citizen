@@ -1,15 +1,14 @@
-@Repository
-public interface T1Repository extends JpaRepository<T1, Long> {
+// Block back button
+(function () {
+    history.pushState(null, null, location.href); // Push current state to history
+    window.addEventListener('popstate', function (event) {
+        history.pushState(null, null, location.href); // Push state again to block back navigation
+        alert('Back button is disabled on this page.'); // Optional alert
+    });
+})();
 
-    @Query(value = "SELECT COUNT(*) > 0 " +
-                   "FROM t1 t " +
-                   "WHERE t.memberbase = :memberbase " +
-                   "AND EXISTS (" +
-                   "  SELECT 1 FROM unnest(string_to_array(t.domain, ',')) AS split_domain " +
-                   "  WHERE :emailDomain LIKE REPLACE(split_domain, '*', '%')" +
-                   ")",
-           nativeQuery = true)
-    boolean existsDomainForMemberBase(
-            @Param("memberbase") String memberbase,
-            @Param("emailDomain") String emailDomain);
-}
+
+#####
+window.onbeforeunload = function () {
+    return "Are you sure you want to leave this page?";
+};
