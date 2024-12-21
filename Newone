@@ -1,14 +1,7 @@
-// Block back button
-(function () {
-    history.pushState(null, null, location.href); // Push current state to history
-    window.addEventListener('popstate', function (event) {
-        history.pushState(null, null, location.href); // Push state again to block back navigation
-        alert('Back button is disabled on this page.'); // Optional alert
-    });
-})();
-
-
-#####
-window.onbeforeunload = function () {
-    return "Are you sure you want to leave this page?";
-};
+@Query(value = "SELECT * FROM users u WHERE " +
+               "(:email IS NULL OR u.email = :email) AND " +
+               "(:applicationNames IS NULL OR u.application_name IN (:applicationNames))",
+       nativeQuery = true)
+List<User> findByEmailAndApplications(
+        @Param("email") String email,
+        @Param("applicationNames") List<String> applicationNames);
